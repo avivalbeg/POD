@@ -1,3 +1,7 @@
+"""
+Script for downloading zipped irc data into a "data" directory.
+"""
+
 from bs4 import BeautifulSoup
 import requests
 import os 
