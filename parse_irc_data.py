@@ -9,14 +9,14 @@ https://web.archive.org/web/20100607041834/http://games.cs.ualberta.ca:80/poker/
 import os
 import glob
 import re
-from os.path import join, isdir, splitext
+from os.path import join, isdir, splitext, exists
 from pprint import pprint
 from random import choice
 import numpy
 
 DATA_DIR_PATH = "data"
 
-HOLDE_PATHS_REGEX = r"holdem*"
+HOLDEM_PATHS_REGEX = r"holdem*"
 
 
 
@@ -129,12 +129,19 @@ class PlayerInGame(object):
         self.timeStamp, self.nPlayers,self.name, self.pos, self.preflopActions, self.flopActions, self.turnActions, self.riverActions, self.bankroll, self.action, self.winnings, self.cards \
  = timeStamp, nPlayers, name, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings, cards
         self.data = [timeStamp, nPlayers, name, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings, cards]
+    
     def __str__(self):
         
         return " ".join([str(x) for x in self.data])
         
     def __repr__(self):
         return str(self)
+    
+    # Adjustments to fit pokerbot
+    
+    def __getitem__(self,item):
+        if item == "pot":
+            return self.bankroll
 
 class Player(object):
     """Represents overall data of a player, read from a player file."""
@@ -188,14 +195,16 @@ class IrcHoldemDataParser:
     
     # Private methods
     
-    def __init__(self,playerSkipProb=0):
+    def __init__(self,dataDirPath=DATA_DIR_PATH, playerSkipProb=0):
         self.nGames = 0
         self.badGames = 0
         
         # Collect all topmost holdem path
-        self._headPaths = [join(DATA_DIR_PATH, path) for path in os.listdir(DATA_DIR_PATH) if 
-         re.match(HOLDE_PATHS_REGEX, path) 
-         and isdir(join(DATA_DIR_PATH, path))]
+        self._headPaths = [join(dataDirPath, path) for path in os.listdir(dataDirPath) if 
+         re.match(HOLDEM_PATHS_REGEX, path) 
+         and isdir(join(dataDirPath, path))]
+        
+        self._seenPlayers = set()
         
         self._playerIt = self._makePlayerIterator(playerSkipProb)
         self._gameIt = self._makeGamesDataIterator()
@@ -206,24 +215,30 @@ class IrcHoldemDataParser:
         skipProb effectively decides what is the fraction of players
         the fraction of players we get at the end."""
         
-        self._seenPlayers = set()
         
+        count=0
         # Go through all game files
         for headPath in self._headPaths:
             for folder in os.listdir(headPath):
                 path = (join(headPath, folder))
+                if not exists(join(path, "pdb")):
+                    continue
                 for playerFileName in os.listdir(join(path, "pdb")):
                     
                     
                     # Decide if should skip:
                     _, name = splitext(playerFileName)
+                    
+                    count+=1
+                    
+                    self._seenPlayers.add(name)
                     if name in self._seenPlayers\
                     or not(numpy.random.binomial(1,skipProb)):
                         
-                        self._seenPlayers.add(name)
-                        
                         playerPath = join(path, "pdb", playerFileName) 
                         yield self._playerFromFile(playerPath)
+                                
+                print(count, len(self._seenPlayers))
                     
     def _makeGamesDataIterator(self):
         """Returns a generator object that yields all games
@@ -254,80 +269,85 @@ class IrcHoldemDataParser:
         player = Player(splitext(path)[-1][1:])
         with open(path) as f:
             for line in f:
-                lineElems = splitIrcLine(line)
-
-                name, timeStamp, nPlayers, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings = lineElems[:11]
-                cards = lineElems[11:]
-            
-                gameData = PlayerInGame(timeStamp, nPlayers, name, eval(pos), preflopActions, flopActions, turnActions, riverActions, eval(bankroll), eval(action), eval(winnings), cards)
+                try:
+                    lineElems = splitIrcLine(line)
+    
+                    name, timeStamp, nPlayers, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings = lineElems[:11]
+                    cards = lineElems[11:]
                 
-                player.update(gameData)
+                    gameData = PlayerInGame(timeStamp, nPlayers, name, eval(pos), preflopActions, flopActions, turnActions, riverActions, eval(bankroll), eval(action), eval(winnings), cards)
+                    
+                    player.update(gameData)
+                except:
+                    # If this line is bad, just ignore it
+                    pass
         return player
     
     def _gameFromLines(self, metadataLine, dataLine, rootPath):
-        
-        gameMetaData = splitIrcLine(metadataLine)
-        gameData = splitIrcLine(dataLine)
-        
-        
-        # Get data from lines:
-        timeStamp1, nPlayers, playerNames = gameMetaData[0], eval(gameMetaData[1]), gameMetaData[2:] 
-        timeStamp2, gameSetId, gameId, nPlayers, flop, turn, river, showdown = \
-        gameData[:8]   
-        boardCards = gameData[8:]
-        flopNPls, flopPot = flop.split("/")
-        turnNPls, turnPot = turn.split("/")
-        riverNPls, riverPot = river.split("/")
-        showdownNPls, showdownPot = showdown.split("/")
-        
-        if timeStamp1 != timeStamp2:
-            return None
-        timeStamp = timeStamp1
-        
-        # Get data from player files:
-        # First, get the files that correspond to each player:
-        
-        players = []  # PlayerInGame objects
-        
-        for playerName in playerNames:
-            playerPath = join(rootPath, "pdb", "pdb." + playerName) 
-            # Search for game line
-            try:
+        try:
+            gameMetaData = splitIrcLine(metadataLine)
+            gameData = splitIrcLine(dataLine)
+            
+            
+            # Get data from lines:
+            timeStamp1, nPlayers, playerNames = gameMetaData[0], eval(gameMetaData[1]), gameMetaData[2:] 
+            timeStamp2, gameSetId, gameId, nPlayers, flop, turn, river, showdown = \
+            gameData[:8]   
+            boardCards = gameData[8:]
+            flopNPls, flopPot = flop.split("/")
+            turnNPls, turnPot = turn.split("/")
+            riverNPls, riverPot = river.split("/")
+            showdownNPls, showdownPot = showdown.split("/")
+            
+            if timeStamp1 != timeStamp2:
+                return None
+            timeStamp = timeStamp1
+            
+            # Get data from player files:
+            # First, get the files that correspond to each player:
+            
+            players = []  # PlayerInGame objects
+            
+            for playerName in playerNames:
+                playerPath = join(rootPath, "pdb", "pdb." + playerName) 
+                # Search for game line
                 with open(playerPath) as playerFile:
                     for line in playerFile:
                         lineElems = splitIrcLine(line)
                         if lineElems[1] == timeStamp:
                             break
-            except:
-                self.badGames += 1
-                return None
-            # parse player data
-            name, timeStamp, nPlayers, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings = lineElems[:11]
-            cards = lineElems[11:]
+                
+                # parse player data
+                name, timeStamp, nPlayers, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings = lineElems[:11]
+                cards = lineElems[11:]
+                
+                players.append(PlayerInGame(timeStamp, nPlayers, name, eval(pos), preflopActions, flopActions, turnActions, riverActions, eval(bankroll), eval(action), eval(winnings), cards))
+            self.nGames += 1
             
-            players.append(PlayerInGame(timeStamp, nPlayers, name, eval(pos), preflopActions, flopActions, turnActions, riverActions, eval(bankroll), eval(action), eval(winnings), cards))
-        self.nGames += 1
+            return Game(timeStamp,
+                       eval(gameSetId),
+                       eval(gameId),
+                       eval(nPlayers),
+                       eval(flopNPls),
+                       eval(flopPot),
+                       eval(turnNPls),
+                       eval(turnPot),
+                       eval(riverNPls),
+                       eval(riverPot),
+                       eval(showdownNPls),
+                       eval(showdownPot),
+                       boardCards,
+                       players)
+        except:
+            self.badGames+=1
+            # returns None
         
-        return Game(timeStamp,
-                   eval(gameSetId),
-                   eval(gameId),
-                   eval(nPlayers),
-                   eval(flopNPls),
-                   eval(flopPot),
-                   eval(turnNPls),
-                   eval(turnPot),
-                   eval(riverNPls),
-                   eval(riverPot),
-                   eval(showdownNPls),
-                   eval(showdownPot),
-                   boardCards,
-                   players)
     
     def __iter__(self):
             return self
 def test():
     parser = IrcHoldemDataParser()
-    for _ in range(40):
+    while True:
         parser.nextPlayer()
 #         print(parser.getRandomGame())
 
