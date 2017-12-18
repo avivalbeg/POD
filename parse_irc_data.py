@@ -348,8 +348,7 @@ class IrcHoldemDataParser:
 def test():
     parser = IrcHoldemDataParser()
     while True:
-        parser.nextPlayer()
-#         print(parser.getRandomGame())
+        print(parser.getRandomGame())
 
 if __name__ == '__main__':
     test()

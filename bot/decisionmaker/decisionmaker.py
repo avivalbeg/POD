@@ -548,6 +548,8 @@ class Decision(DecisionBase):
             if t.checkButton:
                 self.check_deception(t, p, h)
 
+
+            
             if t.allInCallButton == False and t.equity >= float(p.selected_strategy[
                                                                     'secondRiverBetPotMinEquity']) and t.gameStage == GameStages.River.value and h.histGameStage == GameStages.River.value:
                 self.decision = DecisionTypes.bet4

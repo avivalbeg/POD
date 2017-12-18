@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-from poker.decisionmaker.decisionmaker import Decision
-from poker.decisionmaker.decisionmaker import DecisionTypes
-from poker.tools import StrategyHandler
+from bot.decisionmaker.decisionmaker import Decision
+from bot.decisionmaker.decisionmaker import DecisionTypes
+from bot.tools import StrategyHandler
 from . import init_table
 
 
