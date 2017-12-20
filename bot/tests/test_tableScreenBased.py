@@ -7,6 +7,8 @@ class TestTableScreenBased(TestCase):
     def test1(self):
         t, p, gui_signals, h, logger = init_table('tests/screenshots/test1.png')
         t.get_game_number_on_screen(h)
+        print(t.potStretch)
+        quit()
         self.assertEqual(h.game_number_on_screen, "16543145686")
         self.assertEqual(t.mycards, ['QD', 'QS'])
         self.assertEqual(t.checkButton, True)

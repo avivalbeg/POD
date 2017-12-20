@@ -13,44 +13,20 @@ from os.path import join, isdir, splitext, exists
 from pprint import pprint
 from random import choice
 import numpy
+from constants import *
+from util import *
 
-DATA_DIR_PATH = "data"
 
 HOLDEM_PATHS_REGEX = r"holdem*"
 
 
-
-def splitIrcLine(line):
-    return re.split("\s+", line.strip())
-
-
-
-
-def tableRowTitle(obj, spacesBeforeSep=15, spacesAfterSep=10, sep="|"):
-    """
-    Creates a title-formed string from an object. For example:
-    
-    >> tableRowTitle("Flop") + "2/20"
-    Flop           |          2/20
-    """
-    if len(str(obj)) > spacesBeforeSep:
-        return str(obj)[:spacesBeforeSep - 4] + "... " + sep + (" " *spacesAfterSep)
-    return str(obj) + " "*(spacesBeforeSep - len(str(obj))) + sep + (" " *spacesAfterSep)
-
-def tableRowFromList(lst, cellSize=10, sep="|"):
-    """Create a table row from list, with each cell centered and 
-    of size cellSize, separated by sep""" 
-
-    cells = [x if len(x) <= cellSize else x[:cellSize - 4] + "... " for x in lst ]
-    out = ""
-    for cell in cells:
-        if len(cell) % 2 != 0:
-            cell += " "
-        spaces = " "*int((cellSize - len(cell)) / 2)
-        out += spaces + cell \
-        + spaces + sep
-    return out
-
+class GameTracker(object):
+    def __init__(self, game):
+        self.activePlayers = set([player.name for player in game.players]) 
+        self.stage = GameStages[0]
+        self.roundCounter = 0
+        self.nCalls = 0
+        self.nRaises =0
 class Game(object):
     def __init__(self, timeStamp,
                  gameSetId,
@@ -66,7 +42,6 @@ class Game(object):
                  showdownPot,
                  boardCards,
                  players):
-        
         for player in players:
             if player.timeStamp != timeStamp:
                 raise IOError("PlayerInGame timestamp is different from game timestamp")
@@ -74,13 +49,31 @@ class Game(object):
         self.timeStamp, self.gameSetId, self.gameId, self.nPlayers, self.flopNPls, self.flopPot, self.turnNPls, self.turnPot, self.riverNPls, self.riverPot, self.showdownNPls, self.showdownPot, self.boardCards, self.players\
  = timeStamp, gameSetId, gameId, nPlayers, flopNPls, flopPot, turnNPls, turnPot, riverNPls, riverPot, showdownNPls, showdownPot, boardCards, players
         
+        self.preflopPot = 0
+        self.preflopNPls = nPlayers
+        
+        # Count number of raises for each stage
+        counts = {"flop":0,"turn":0,"river":0,"showdown":0}
+        for player in players:
+            counts["flop"] += len(re.findall("[Arb]",player.preflopActions))
+            counts["turn"] += len(re.findall("[Arb]",player.flopActions))
+            counts["river"] += len(re.findall("[Arb]",player.turnActions))
+            counts["showdown"] += len(re.findall("[Arb]",player.riverActions))
+        self.preflopNraises = counts["flop"] + 2 # for blinds
+        self.flopNraises = counts["turn"]
+        self.turnNraises = counts["river"]
+        self.riverNraises = counts["showdown"]
+        self.showdownNraises = 0
+        
+        
         self.data = [timeStamp, gameSetId, gameId, nPlayers,
                                flopNPls, flopPot,
                                turnNPls, turnPot,
                                riverNPls, riverPot,
                                showdownNPls, showdownPot,
                                boardCards, players]
-        
+        self.raiseEsts = {"preflop":[],"flop":[],"turn":[],"river":[]}
+
     def __str__(self):
         out = "IRC Game Record\n----------------------------------------\n"
         
@@ -101,6 +94,7 @@ class Game(object):
         headers = tableRowFromList("name pos preflop flop turn river bankroll action winnings cards".split(" "))
         
         out += headers + "\n"
+        out+="-" * len(headers)+"\n"
         for player in self.players:
             
             out += tableRowFromList([str(x) for x in player.data[2:-1]] + [" ".join(player.cards)]) + "\n"
@@ -142,7 +136,11 @@ class PlayerInGame(object):
     def __getitem__(self,item):
         if item == "pot":
             return self.bankroll
-
+    def __eq__(self, o):
+        return self.name == o.name
+    
+    def __ne__(self, o):
+        return not self == o
 class Player(object):
     """Represents overall data of a player, read from a player file."""
     def __init__(self, name):
@@ -155,9 +153,14 @@ class Player(object):
     def update(self, gameData):
         """Update a player's stats based on one game's data."""
         pass
-    
-class IrcHoldemDataParser:
-    
+
+class DataParser:
+    pass
+
+class IrcDataParser(DataParser):
+    pass
+
+class IrcHoldemDataParser(IrcDataParser):
     
     # API
     
@@ -180,8 +183,8 @@ class IrcHoldemDataParser:
             metadataLines, dataLines = hrosterFile.readlines(), hdbFile.readlines()
             hrosterFile.close()
             hdbFile.close()
-        except:
-            return None
+        except FileNotFoundError:
+            return self.getRandomGame()
         # Get random game from folder
         i = float("inf")
         while i >= len(metadataLines) or i >= len(dataLines):
@@ -238,7 +241,6 @@ class IrcHoldemDataParser:
                         playerPath = join(path, "pdb", playerFileName) 
                         yield self._playerFromFile(playerPath)
                                 
-                print(count, len(self._seenPlayers))
                     
     def _makeGamesDataIterator(self):
         """Returns a generator object that yields all games
@@ -284,7 +286,7 @@ class IrcHoldemDataParser:
         return player
     
     def _gameFromLines(self, metadataLine, dataLine, rootPath):
-        try:
+#         try:
             gameMetaData = splitIrcLine(metadataLine)
             gameData = splitIrcLine(dataLine)
             
@@ -316,12 +318,12 @@ class IrcHoldemDataParser:
                         lineElems = splitIrcLine(line)
                         if lineElems[1] == timeStamp:
                             break
-                
                 # parse player data
                 name, timeStamp, nPlayers, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings = lineElems[:11]
                 cards = lineElems[11:]
-                
-                players.append(PlayerInGame(timeStamp, nPlayers, name, eval(pos), preflopActions, flopActions, turnActions, riverActions, eval(bankroll), eval(action), eval(winnings), cards))
+                plyr = PlayerInGame(timeStamp, nPlayers, name, eval(pos), preflopActions, flopActions, turnActions, riverActions, eval(bankroll), eval(action), eval(winnings), cards)
+                players.append(plyr)
+            players.sort(key=lambda plyr:plyr.pos)
             self.nGames += 1
             
             return Game(timeStamp,
@@ -338,17 +340,17 @@ class IrcHoldemDataParser:
                        eval(showdownPot),
                        boardCards,
                        players)
-        except:
-            self.badGames+=1
-            # returns None
+#         except:
+#             self.badGames+=1
+#             # returns None
         
     
-    def __iter__(self):
-            return self
+    def iterGames(self):
+            return self._gameIt
 def test():
     parser = IrcHoldemDataParser()
-    while True:
-        print(parser.getRandomGame())
+    for _ in range(5):
+        (parser.getRandomGame())
 
 if __name__ == '__main__':
     test()

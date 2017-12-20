@@ -1,8 +1,22 @@
+"""
+This module trains a poker bot.
+It needs to access the IRC data, which is in ../data/irc-data.
+The current idea for how it should work is:
+    You instantiate a Table object from the bot library based on an IRC game, and then let the bot make decisions in that 
+    table as if it were one of the players. To do that, we should choose a good player which also made it to showdown.
+    And then, every we will reinforce the trainer every time it makes the same decision the real player did.
+"""
+
+
+
+import os, sys
+sys.path = ["C:\\Users\\Omer ASUS\\git\\POD\\"] + sys.path
+
 import matplotlib
 import pandas as pd
 import time
 import numpy as np
-from parse_irc_data import IrcHoldemDataParser
+from ml.parse_irc_data import IrcHoldemDataParser
 from bot.table_analysers.base import Table
 from bot.decisionmaker.montecarlo_python import MonteCarlo
 from copy import copy
@@ -13,8 +27,6 @@ from bot.decisionmaker.decisionmaker import Decision
 from bot.table_analysers.table_screen_based import TableScreenBased
 from random import choice
 
-import os, sys
-sys.path = ["C:\\Users\\Omer ASUS\\git\\POD\\"] + sys.path
 # os.environ['KERAS_BACKEND']='theano'
 
 import logging.handlers
@@ -28,7 +40,7 @@ from configobj import ConfigObj
 
 version = 3.04
 
-DATA_DIR_PATH = "../data"
+DATA_DIR_PATH = "../data/irc-data"
 
 GAME_STAGES = ["PreFlop", "Flop", "Turn", "River", "Showdown"]
 
@@ -182,7 +194,7 @@ import numpy as np
 
 class IrcTrainer:
 
-    def nextTable(h, p, game_logger, version):
+    def newTable(self, h, p, game_logger, version):
         game = ircParser.getRandomGame()
         gameStage = "PreFlop"
         player = choice(game.players) # The player we're imitating
@@ -232,7 +244,7 @@ class IrcTrainer:
         
         return table
 
-    def train():
+    def train(self):
         config = ConfigObj("config.ini")
         game_logger = GameLogger()
         logger = logging.getLogger('main')
@@ -243,7 +255,7 @@ class IrcTrainer:
         p.read_strategy()
         preflop_state = CurrentHandPreflopState()
         
-        t = makeTable(h, p, game_logger, version)
+        t = self.newTable(h, p, game_logger, version)
         
         
         d = Decision(t, h, p, game_logger)
@@ -268,4 +280,5 @@ class IrcTrainer:
         
 
 if __name__ == '__main__':
-    train()
+    trainer = IrcTrainer()
+    trainer.train()

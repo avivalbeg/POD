@@ -1,22 +1,23 @@
 import matplotlib
 from PyQt5.QtCore import *
+from constants import defaultStrategy
 
 matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas)
 from matplotlib.figure import Figure
 from weakref import proxy
-from poker.gui.gui_qt_ui_genetic_algorithm import *
-from poker.gui.gui_qt_ui_strategy_manager import *
-from poker.gui.GUI_QT_ui_analyser import *
-from poker.gui.setup import *
-from poker.gui.help import *
-from poker.tools.vbox_manager import VirtualBoxController
+from bot.gui.gui_qt_ui_genetic_algorithm import *
+from bot.gui.gui_qt_ui_strategy_manager import *
+from bot.gui.GUI_QT_ui_analyser import *
+from bot.gui.setup import *
+from bot.gui.help import *
+from bot.tools.vbox_manager import VirtualBoxController
 from PyQt5.QtWidgets import QMessageBox
-from poker.tools.mongo_manager import GameLogger,StrategyHandler
+from bot.tools.mongo_manager import GameLogger,StrategyHandler
 import webbrowser
-from poker.decisionmaker.genetic_algorithm import *
-from poker.decisionmaker.curvefitting import *
+from bot.decisionmaker.genetic_algorithm import *
+from bot.decisionmaker.curvefitting import *
 import os
 import logging
 from configobj import ConfigObj

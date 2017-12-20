@@ -7,14 +7,14 @@ from unittest.mock import MagicMock
 import pandas as pd
 from PIL import Image
 
-from poker.tools.mongo_manager import GameLogger
-from poker.tools.mongo_manager import StrategyHandler
-from poker.tools.mongo_manager import UpdateChecker
+from bot.tools.mongo_manager import GameLogger
+from bot.tools.mongo_manager import StrategyHandler
+from bot.tools.mongo_manager import UpdateChecker
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
-from poker import main
+from bot import main
 
 
 def init_table(file,round_number=0, strategy='Default1'):
@@ -55,6 +55,8 @@ def init_table(file,round_number=0, strategy='Default1'):
     t.totalPotValue = 0.5
     t.equity = 0.5
     return t,p,gui_signals,h,logger
+
+
 
 
 

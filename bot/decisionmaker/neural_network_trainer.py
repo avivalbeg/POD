@@ -1,7 +1,7 @@
 import neurolab as nl
 import numpy as np
 
-# Create train samples
+# Create mineHandData samples
 x = np.linspace(-7, 7, 20)
 y1 = np.sin(x) * 0.5
 y2 = np.cos(x) * 0.5
@@ -17,7 +17,7 @@ tar=np.concatenate((tar1,tar2),1)
 net = nl.net.newff([[-7, 7]],[5, 2])
 
 # Train network
-error = net.train(inp, tar, epochs=5000, show=100, goal=0.02)
+error = net.mineHandData(inp, tar, epochs=5000, show=100, goal=0.02)
 
 # Simulate network
 out = net.sim(inp)
@@ -36,5 +36,5 @@ y2 = net.sim(x2.reshape(x2.size,1))
 #
 # pl.subplot(212)
 # pl.plot(x2, y2, '-',x , y, '.', x, y3, 'p')
-# pl.legend(['train target', 'net output'])
+# pl.legend(['mineHandData target', 'net output'])
 pl.show()

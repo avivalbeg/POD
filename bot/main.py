@@ -2,11 +2,12 @@ import matplotlib
 import pandas as pd
 import time
 import numpy as np
+import pymongo
 
 # matplotlib.use('Qt5Agg')
 matplotlib.use('agg')
 import os, sys
-sys.path=["C:\\Users\\Omer ASUS\\git\\Poker"]+sys.path
+sys.path=["C:\\Users\\Omer ASUS\\git\\POD"]+sys.path
 # os.environ['KERAS_BACKEND']='theano'
 import logging.handlers
 import pytesseract
@@ -15,14 +16,14 @@ import datetime
 from PIL import Image
 from PyQt5 import QtWidgets, QtGui
 from configobj import ConfigObj
-from poker.gui.gui_qt_ui import Ui_Pokerbot
-from poker.gui.gui_qt_logic import UIActionAndSignals
-from poker.tools.mongo_manager import StrategyHandler, UpdateChecker, GameLogger
-from poker.table_analysers.table_screen_based import TableScreenBased
-from poker.decisionmaker.current_hand_memory import History, CurrentHandPreflopState
-from poker.decisionmaker.montecarlo_python import run_montecarlo_wrapper
-from poker.decisionmaker.decisionmaker import Decision
-from poker.tools.mouse_mover import MouseMoverTableBased
+from bot.gui.gui_qt_ui import Ui_Pokerbot
+from bot.gui.gui_qt_logic import UIActionAndSignals
+from bot.tools.mongo_manager import StrategyHandler, UpdateChecker, GameLogger
+from bot.table_analysers.table_screen_based import TableScreenBased
+from bot.decisionmaker.current_hand_memory import History, CurrentHandPreflopState
+from bot.decisionmaker.montecarlo_python import run_montecarlo_wrapper
+from bot.decisionmaker.decisionmaker import Decision
+from bot.tools.mouse_mover import MouseMoverTableBased
 
 
 version = 3.04
@@ -118,8 +119,6 @@ class ThreadManager(threading.Thread):
 
         p = StrategyHandler()
         p.read_strategy()
-        print(p.selected_strategy)
-        quit()
         preflop_state = CurrentHandPreflopState()
 
         while True:
@@ -247,8 +246,6 @@ def run_poker():
     global u
     u = UpdateChecker()
     u.check_update(version)
-
-
     def exception_hook(exctype, value, traceback):
         # Print the error and traceback
         logger = logging.getLogger('main')
@@ -260,8 +257,6 @@ def run_poker():
         # Call the normal Exception hook after
         sys.__excepthook__(exctype, value, traceback)
         sys.exit(1)
-
-
     # Set the exception hook to our wrapping function
     sys.__excepthook__ = exception_hook
 
@@ -288,7 +283,6 @@ def run_poker():
 
     t1 = ThreadManager(1, "Thread-1", 1, gui_signals)
     t1.start()
-
     MainWindow.show()
     try:
         sys.exit(app.exec_())

@@ -10,6 +10,9 @@ from os.path import join, exists
 if not exists("data"):
     os.mkdir("data")
 
+if not exists("data/irc-data"):
+    os.mkdir("data/irc-data")
+
 def find_files(url):
 
     soup = BeautifulSoup(requests.get(url).text)

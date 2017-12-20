@@ -2,11 +2,11 @@ import logging
 import random
 
 import numpy as np
-from poker.captcha.key_press_vbox import *
+from bot.captcha.key_press_vbox import *
 from configobj import ConfigObj
 
-from poker import pymouse
-from poker.tools.vbox_manager import VirtualBoxController
+from bot import pymouse
+from bot.tools.vbox_manager import VirtualBoxController
 
 
 class MouseMover(VirtualBoxController):
