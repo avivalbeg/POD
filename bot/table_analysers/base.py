@@ -295,6 +295,7 @@ class Table(object):
     def call_genetic_algorithm(self, p):
         """
         Run the genetic algorithm on given strategy.
+        Consider a number of games equals to the strategy's 'considerLastGames' value. 
         It is run every time the bot recognizes that it was dealt
         new cards.
         """

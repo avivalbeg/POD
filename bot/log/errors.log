@@ -376,3 +376,7 @@
 2017-12-21 05:54:27,755 - decision - WARNING - Sheetname not found: 6
 2017-12-21 05:54:27,755 - decision - WARNING - Backup sheet in use: 2R1
 2017-12-21 05:55:28,098 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 10:05:47,521 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 10:05:47,523 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 10:05:54,805 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 10:05:54,810 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity

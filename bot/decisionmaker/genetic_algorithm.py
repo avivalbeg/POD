@@ -14,17 +14,17 @@ class GeneticAlgorithm(object):
     is called every time 
     """
     
-    def __init__(self, write_update, L):
+    def __init__(self, write_update, gameLogger):
         self.logger = logging.getLogger('genetic_algo')
         self.logger.setLevel(logging.DEBUG)
         self.output = ''
         p = StrategyHandler()
         p.read_strategy()
-        p_name = p.current_strategy
-        self.logger.debug("Strategy to analyse: "+p_name)
-        self.load_log(p_name, L)
+        strategyName = p.current_strategy
+        self.logger.debug("Strategy to analyse: "+strategyName)
+        self.load_log(strategyName, gameLogger)
         # Genetic algo applies here
-        self.improve_strategy(L, p)
+        self.improve_strategy(gameLogger, p)
         
         # If the strategy was modified, and write_updates is true,
         # then save it to server 
@@ -42,15 +42,20 @@ class GeneticAlgorithm(object):
     def get_results(self):
         return self.output
 
-    def load_log(self, p_name, L):
+    def load_log(self, strategyName, gameLogger):
+        """
+        Update GameLog gameLogger with data from all
+        games in which a strategy with name strategyName was used.
+        Data is retrieved from the mongodb.
+        """
         self.gameResults = {}
-        L.get_stacked_bar_data('Template', p_name, 'stackedBar')
+        gameLogger.get_stacked_bar_data('Template', strategyName, 'stackedBar')
         self.recommendation = dict()
 
-    def assess_call(self, p, L, decision, stage, coeff1, coeff2, coeff3, coeff4, change):
-        A = L.d[decision, stage, 'Won'] > L.d[decision, stage, 'Lost'] * coeff1  # Call won > call lost * c1
-        B = L.d[decision, stage, 'Lost'] > L.d['Fold', stage, 'Lost'] * coeff2  # Call Lost > Fold lost
-        C = L.d[decision, stage, 'Won'] + L.d['Bet', stage, 'Won'] < L.d[
+    def assess_call(self, p, gameLogger, decision, stage, coeff1, coeff2, coeff3, coeff4, change):
+        A = gameLogger.d[decision, stage, 'Won'] > gameLogger.d[decision, stage, 'Lost'] * coeff1  # Call won > call lost * c1
+        B = gameLogger.d[decision, stage, 'Lost'] > gameLogger.d['Fold', stage, 'Lost'] * coeff2  # Call Lost > Fold lost
+        C = gameLogger.d[decision, stage, 'Won'] + gameLogger.d['Bet', stage, 'Won'] < gameLogger.d[
                                                                          'Fold', stage, 'Lost'] * coeff3  # Fold Lost*c3 > Call won + bet won
         if A and B:
             self.recommendation[stage, decision] = "ok"
@@ -69,10 +74,10 @@ class GeneticAlgorithm(object):
         self.logger.info(stage + " " + decision + ": " + self.recommendation[stage, decision])
         self.output += stage + " " + decision + ": " + self.recommendation[stage, decision] + '\n'
 
-    def assess_bet(self, p, L, decision, stage, coeff1, change):
-        A = L.d['Bet', stage, 'Won'] > (L.d['Bet', stage, 'Lost']) * coeff1  # Bet won bigger Bet lost
-        B = L.d['Check', stage, 'Won'] > L.d['Check', stage, 'Lost']  # check won bigger check lost
-        C = L.d['Bet', stage, 'Won'] < (L.d['Bet', stage, 'Lost']) * 1  # Bet won bigger Bet lost
+    def assess_bet(self, p, gameLogger, decision, stage, coeff1, change):
+        A = gameLogger.d['Bet', stage, 'Won'] > (gameLogger.d['Bet', stage, 'Lost']) * coeff1  # Bet won bigger Bet lost
+        B = gameLogger.d['Check', stage, 'Won'] > gameLogger.d['Check', stage, 'Lost']  # check won bigger check lost
+        C = gameLogger.d['Bet', stage, 'Won'] < (gameLogger.d['Bet', stage, 'Lost']) * 1  # Bet won bigger Bet lost
 
         if A and not B:
             self.recommendation[stage, decision] = "ok"
@@ -91,10 +96,10 @@ class GeneticAlgorithm(object):
         self.logger.info(stage + " " + decision + ": " + self.recommendation[stage, decision])
         self.output += stage + " " + decision + ": " + self.recommendation[stage, decision] + '\n'
 
-    def improve_strategy(self, L, p):
+    def improve_strategy(self, gameLogger, p):
         """
         Run the genetic algo on given strategy p (type StrategyHandler)
-        and based on info from logger L (type GameLogger).
+        and based on info from logger gameLogger (type GameLogger).
         """
         self.modified=False
         self.changed = 0
@@ -107,7 +112,7 @@ class GeneticAlgorithm(object):
             stage = 'River'
             decision = 'Call'
             change = 0.02
-            self.assess_call(p, L, decision, stage, coeff1, coeff2, coeff3, coeff4, change)
+            self.assess_call(p, gameLogger, decision, stage, coeff1, coeff2, coeff3, coeff4, change)
 
         if self.changed < maxChanges:
             coeff1 = 2
@@ -116,7 +121,7 @@ class GeneticAlgorithm(object):
             stage = 'Turn'
             decision = 'Call'
             change = 0.02
-            self.assess_call(p, L, decision, stage, coeff1, coeff2, coeff3, coeff4, change)
+            self.assess_call(p, gameLogger, decision, stage, coeff1, coeff2, coeff3, coeff4, change)
 
         if self.changed < maxChanges:
             coeff1 = 2
@@ -125,7 +130,7 @@ class GeneticAlgorithm(object):
             stage = 'Flop'
             decision = 'Call'
             change = 0.01
-            self.assess_call(p, L, decision, stage, coeff1, coeff2, coeff3, coeff4, change)
+            self.assess_call(p, gameLogger, decision, stage, coeff1, coeff2, coeff3, coeff4, change)
 
         if self.changed < maxChanges:
             coeff1 = 2
@@ -134,7 +139,7 @@ class GeneticAlgorithm(object):
             stage = 'PreFlop'
             decision = 'Call'
             change = 0.03
-            self.assess_call(p, L, decision, stage, coeff1, coeff2, coeff3, coeff4, change)
+            self.assess_call(p, gameLogger, decision, stage, coeff1, coeff2, coeff3, coeff4, change)
 
         if self.changed>0: self.modified=True
         self.changed = 0
@@ -144,39 +149,40 @@ class GeneticAlgorithm(object):
             stage = 'River'
             decision = 'Bet'
             change = 0.02
-            self.assess_bet(p, L, decision, stage, coeff1, change)
+            self.assess_bet(p, gameLogger, decision, stage, coeff1, change)
 
         if self.changed < maxChanges:
             coeff1 = 2
             stage = 'Turn'
             decision = 'Bet'
             change = 0.02
-            self.assess_bet(p, L, decision, stage, coeff1, change)
+            self.assess_bet(p, gameLogger, decision, stage, coeff1, change)
 
         if self.changed < maxChanges:
             coeff1 = 2
             stage = 'Flop'
             decision = 'Bet'
             change = 0.02
-            self.assess_bet(p, L, decision, stage, coeff1, change)
+            self.assess_bet(p, gameLogger, decision, stage, coeff1, change)
 
         if self.changed < maxChanges:
             coeff1 = 2
             stage = 'PreFlop'
             decision = 'Bet'
             change = 0.02
-            self.assess_bet(p, L, decision, stage, coeff1, change)
+            self.assess_bet(p, gameLogger, decision, stage, coeff1, change)
 
         if self.changed > 0: self.modified = True
 
 
 def run_genetic_algorithm(write, logger):
     logger.info("===Running genetic algorithm===")
-    L = GameLogger()
-    GeneticAlgorithm(write, L)
+    gameLogger = GameLogger()
+    GeneticAlgorithm(write, gameLogger)
 
 
 if __name__ == '__main__':
+    # Run the genetic algorithm on 
     import logging
 
     logger = logging

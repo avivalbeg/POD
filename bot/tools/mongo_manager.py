@@ -61,7 +61,7 @@ class UpdateChecker():
         cursor = self.mongodb.internal.find()
         c = cursor.next()
         self.preflop_url = c['preflop_url']
-        self.preflop_url_backup='decisionmaker/preflop.xlsx'
+        self.preflop_url_backup = 'decisionmaker/preflop.xlsx'
         return self.preflop_url, self.preflop_url_backup
 
 
@@ -75,7 +75,7 @@ class StrategyHandler(object):
         return l
 
     def check_defaults(self):
-        if not 'initialFunds2' in self.selected_strategy: self.selected_strategy['initialFunds2'] =  self.selected_strategy['initialFunds']
+        if not 'initialFunds2' in self.selected_strategy: self.selected_strategy['initialFunds2'] = self.selected_strategy['initialFunds']
         if not 'use_relative_equity' in self.selected_strategy: self.selected_strategy['use_relative_equity'] = 0
         if not 'use_pot_multiples' in self.selected_strategy: self.selected_strategy['use_pot_multiples'] = 0
         if not 'opponent_raised_without_initiative_flop' in self.selected_strategy: self.selected_strategy['opponent_raised_without_initiative_flop'] = 1
@@ -131,6 +131,12 @@ class StrategyHandler(object):
         if not 'minimum_bet_size' in self.selected_strategy: self.selected_strategy['minimum_bet_size'] = 3
 
     def read_strategy(self, strategy_override=''):
+        """
+        Read a strategy from the mongodb by its name. If strategy override is
+        given, then it is used as strategy name. Otherwise,
+        we use the name provided in the "config.ini" file.
+        """
+        
         config = ConfigObj("config.ini")
         last_strategy = (config['last_strategy'])
         self.current_strategy = last_strategy if strategy_override == '' else strategy_override
@@ -181,7 +187,7 @@ class StrategyHandler(object):
 class GameLogger(object):
     def __init__(self, connection='mongodb://guest:donald@dickreuter.com:27017/POKER'):
         self.mongoclient = MongoClient('mongodb://guest:donald@dickreuter.com:27017/POKER')
-        self.mongodb = self.mongoclient.POKER # This is the database of games 
+        self.mongodb = self.mongoclient.POKER  # This is the database of games 
 
     def clean_database(self):
         if os.environ['COMPUTERNAME'] == 'NICOLAS-ASUS' or os.environ['COMPUTERNAME'] == 'Home-PC-ND':
@@ -313,7 +319,6 @@ class GameLogger(object):
         on the server.
         @TODO: make this dataset richer if possible, and train on it.
         """
-        print(help(self.mongodb.games))
         cursor = self.mongodb.games.aggregate([
             {"$unwind": "$rounds"},
             {"$match": {"Template": {"$regex": ".*"},
@@ -371,9 +376,9 @@ class GameLogger(object):
                 "Total": {"$sum": "$FinalFundsChange"}}}
         ])
         
-        count=0
+        count = 0
         for e in cursor:
-            count+=1
+            count += 1
             # Update values in d based on cursor
             self.d[e['_id']['ld'], e['_id']['gs'], e['_id']['fa']] = abs(e['Total'])
         print("Retrieved %d items" % count)
@@ -491,7 +496,7 @@ class GameLogger(object):
     def get_strategy_return(self, strategy, days):
         cursor = self.mongodb.games.aggregate([
             {"$match": {"Template": {"$regex": strategy}}},
-            {"$sort": {"logging_timestamp": -1}},
+            {"$sort": {"logging_timestamp":-1}},
             {"$limit": days},
             {"$group": {
                 "_id": "none",
@@ -697,3 +702,4 @@ if __name__ == '__main__':
     # print("Return: " + str(strategy_return))
 
     print(len(L.get_neural_training_data()))
+    "last value: 81217"
