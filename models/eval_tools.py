@@ -122,7 +122,7 @@ def evaluateTFModel(modelClass, configs, debug=False):
     results = {}
     for config in configs:
         if debug:
-            print("Training %s with parameters %s" % (modelClass.__name__, str(config)))
+            print("Training %s with parameters:\n %s" % (modelClass.__name__, str(config)))
         
         # Creating a copy of the data that is one hot encoded (if needed)
         thisData = deepcopy(config.data)

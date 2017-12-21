@@ -453,7 +453,7 @@ class Ui_Pokerbot(object):
     def retranslateUi(self, Pokerbot):
         _translate = QtCore.QCoreApplication.translate
         Pokerbot.setWindowTitle(_translate("Pokerbot", "Pokerbot"))
-        self.label_11.setText(_translate("Pokerbot", "DeepMind PokerBot"))
+        self.label_11.setText(_translate("Pokerbot", "DeepMind PBot"))
         self.button_resume.setText(_translate("Pokerbot", "Start"))
         self.button_pause.setText(_translate("Pokerbot", "Stop"))
         self.button_log_analyser.setToolTip(_translate("Pokerbot", "Analyse past hands that the bot has played so you can improve the strategies"))

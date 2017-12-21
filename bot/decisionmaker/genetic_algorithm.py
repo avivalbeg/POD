@@ -7,6 +7,13 @@ from configobj import ConfigObj
 from bot.tools.mongo_manager import GameLogger,StrategyHandler
 
 class GeneticAlgorithm(object):
+    """
+    When this class is instantiated with a StrategyHandler object,
+    it attempts to improve it.
+    This is done in TableScreenBased.call_genetic_algorithm, which 
+    is called every time 
+    """
+    
     def __init__(self, write_update, L):
         self.logger = logging.getLogger('genetic_algo')
         self.logger.setLevel(logging.DEBUG)
@@ -16,9 +23,17 @@ class GeneticAlgorithm(object):
         p_name = p.current_strategy
         self.logger.debug("Strategy to analyse: "+p_name)
         self.load_log(p_name, L)
+        # Genetic algo applies here
         self.improve_strategy(L, p)
+        
+        # If the strategy was modified, and write_updates is true,
+        # then save it to server 
+        # (when this method is called from TableScreenBased, write_update is set to True)
         if (self.modified and write_update==True) or write_update=="Force":
+            # Save strategy
             p.save_strategy_genetic_algorithm()
+            
+            # Update reference in config object
             config = ConfigObj("config.ini")
             config['last_strategy'] = p.current_strategy
             config.write()
@@ -77,6 +92,10 @@ class GeneticAlgorithm(object):
         self.output += stage + " " + decision + ": " + self.recommendation[stage, decision] + '\n'
 
     def improve_strategy(self, L, p):
+        """
+        Run the genetic algo on given strategy p (type StrategyHandler)
+        and based on info from logger L (type GameLogger).
+        """
         self.modified=False
         self.changed = 0
         maxChanges = 2
@@ -154,7 +173,7 @@ class GeneticAlgorithm(object):
 def run_genetic_algorithm(write, logger):
     logger.info("===Running genetic algorithm===")
     L = GameLogger()
-    GeneticAlgorithm(write, logger, L)
+    GeneticAlgorithm(write, L)
 
 
 if __name__ == '__main__':

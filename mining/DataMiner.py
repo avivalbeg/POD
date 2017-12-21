@@ -43,7 +43,7 @@ from constants import *
 from util import *
 
 
-
+# Remove duplicates
 FEATURES = [
     "h.round_number",
     "table.myPos",
@@ -55,7 +55,7 @@ FEATURES = [
     "table.round_pot_value",
     "table.currentCallValue",
     "table.currentBetValue",
-    "table.global_equity",  # Without any hand
+    "table.global_equity",  # Without any hand; how good are the cards on the table
     "len(table.other_players)",
     "len(table.other_active_players)",
     "table.totalPotValue",
@@ -63,11 +63,11 @@ FEATURES = [
     "table.myFunds",
     "h.myLastBet",
     "table.nMyCalls",
-    "table.nMyRaises",
+    "table.nMyRaises", # Includes blinds, bets and raises
     "table.myCallSum",
-    "table.myRaiseSum",
-    "table.currentBetValue",
-    "table.currentCallValue",
+    "table.myRaiseSum", # Includes blinds, bets and raises
+    "table.currentBetValue", # I dont understand the difference between current bet value and current call value,
+    "table.currentCallValue", # so I treat them the same for now
     ]
 
 # These features will not be turned into integers
@@ -76,6 +76,8 @@ DOUBLE_FEATS = [
     ]
 
 class DummyTable:
+    pass
+class DummyHistory:
     pass
 
 class IrcDataMiner:
@@ -183,10 +185,9 @@ class IrcDataMiner:
         
         someonePlayed = False
 
-        for curPos in list(range(game.nPlayers)):
+        for curPlayer in game.players:
             
             # Find action
-            curPlayer = game.players[curPos]
             actions = getattr(curPlayer, table.gameStage.lower() + "Actions")
             action = getOrDefault(actions,
                                   h.round_number,
@@ -265,8 +266,8 @@ class IrcDataMiner:
                 
                 if self._debugMode:
                     pprint({FEATURES[i]:features[i] for i in range(len(FEATURES))})
+                # Comment this out if you're doing unittesting
                 self._outFile.write(" ".join([str(x) for x in features]) + " " + str(table.equity) + "\n")
-            curPos = (curPos + 1) % game.nPlayers
             
         return someonePlayed
 

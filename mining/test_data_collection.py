@@ -6,11 +6,10 @@ from pprint import pprint
 from unittest import TestCase
 
 from bot.decisionmaker.current_hand_memory import History
-from parse_irc_data import IrcHoldemDataParser
-from ml.data_collection import IrcDataMiner, FEATURES
+from data_parsing import IrcHoldemDataParser
+from DataMiner import IrcDataMiner, FEATURES
 from constants import IRC_DATA_PATH, HAND_DATA_PATH
 from os.path import join
-
 
 class TestDataCollection(TestCase):
 

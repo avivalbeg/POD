@@ -1,8 +1,15 @@
-'''
-Created on Nov 7, 2017
-
-@author: Omer ASUS
-'''
+"""
+@todo: 
+    - Save models
+    - Progress bar
+    - Hidden layers as param
+    - More models
+    - More params for non-ann
+    - say which code was salvaged from CS224N
+    - write demo script
+    - clean imports
+    - k-fold cross validation
+"""
 
 from eval_tools import *
 

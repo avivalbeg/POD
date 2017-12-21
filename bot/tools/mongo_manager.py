@@ -181,7 +181,7 @@ class StrategyHandler(object):
 class GameLogger(object):
     def __init__(self, connection='mongodb://guest:donald@dickreuter.com:27017/POKER'):
         self.mongoclient = MongoClient('mongodb://guest:donald@dickreuter.com:27017/POKER')
-        self.mongodb = self.mongoclient.POKER
+        self.mongodb = self.mongoclient.POKER # This is the database of games 
 
     def clean_database(self):
         if os.environ['COMPUTERNAME'] == 'NICOLAS-ASUS' or os.environ['COMPUTERNAME'] == 'Home-PC-ND':
@@ -224,7 +224,7 @@ class GameLogger(object):
         rec['logging_timestamp'] = datetime.datetime.utcnow()
         del rec['_id']
         result = self.mongodb.rounds.insert_one(rec)
-
+        
     def mark_last_game(self, t, h, p):
         # updates the last game after it becomes know if it was won or lost
         outcome = "na"
@@ -308,6 +308,12 @@ class GameLogger(object):
         return collusion_cards, player_dropped_out
 
     def get_neural_training_data(self):
+        """
+        I think this retrieves all game data stored
+        on the server.
+        @TODO: make this dataset richer if possible, and train on it.
+        """
+        print(help(self.mongodb.games))
         cursor = self.mongodb.games.aggregate([
             {"$unwind": "$rounds"},
             {"$match": {"Template": {"$regex": ".*"},
@@ -332,8 +338,13 @@ class GameLogger(object):
         return result
 
     def get_stacked_bar_data(self, p_name, p_value, chartType):
-
-        self.d = dict()
+        """
+        Get data from current session of bot. 
+        This is used for improving in-session strategy.
+        """
+        print("Prepping data for genetic algorithm...")
+        # self.d contains game information and is updated here 
+        self.d = dict() 
         self.outcomes = ['Won', 'Lost']
         self.gameStages = ['PreFlop', 'Flop', 'Turn', 'River']
         self.decisions = ['Bet Bluff', 'Check Deception', 'Call Deception', 'Fold', 'Check', 'Call', 'Bet', 'BetPlus',
@@ -343,7 +354,8 @@ class GameLogger(object):
             for gameStage in self.gameStages:
                 for decision in self.decisions:
                     self.d[decision, gameStage, outcome] = 0
-
+        
+        # Iterator over game logs
         cursor = self.mongodb.games.aggregate([
             {"$unwind": "$rounds"},
             {"$match": {"Template": {"$regex": p_value}}},
@@ -358,10 +370,14 @@ class GameLogger(object):
                 "_id": {"ld": "$lastDecision", "fa": "$FinalOutcome", "gs": "$_id.gameStage"},
                 "Total": {"$sum": "$FinalFundsChange"}}}
         ])
-
+        
+        count=0
         for e in cursor:
+            count+=1
+            # Update values in d based on cursor
             self.d[e['_id']['ld'], e['_id']['gs'], e['_id']['fa']] = abs(e['Total'])
-
+        print("Retrieved %d items" % count)
+        
         numbers = [[self.d['Call', 'PreFlop', 'Lost'], self.d['Call', 'Flop', 'Lost'], self.d['Call', 'River', 'Lost'],
                     self.d['Bet', 'Flop', 'Lost'], self.d['Bet', 'Turn', 'Lost'], self.d['Bet', 'River', 'Lost'],
                     self.d['Bet half pot', 'Turn', 'Lost'], self.d['Bet half pot', 'River', 'Lost'],
@@ -680,4 +696,4 @@ if __name__ == '__main__':
     # strategy_return = L.get_strategy_return('.*', 500)
     # print("Return: " + str(strategy_return))
 
-    print(L.get_neural_training_data())
+    print(len(L.get_neural_training_data()))

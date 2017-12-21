@@ -26,7 +26,8 @@ class GameTracker(object):
         self.stage = GameStages[0]
         self.roundCounter = 0
         self.nCalls = 0
-        self.nRaises =0
+        self.nRaises = 0
+        
 class Game(object):
     def __init__(self, timeStamp,
                  gameSetId,
@@ -53,13 +54,13 @@ class Game(object):
         self.preflopNPls = nPlayers
         
         # Count number of raises for each stage
-        counts = {"flop":0,"turn":0,"river":0,"showdown":0}
+        counts = {"flop":0, "turn":0, "river":0, "showdown":0}
         for player in players:
-            counts["flop"] += len(re.findall("[Arb]",player.preflopActions))
-            counts["turn"] += len(re.findall("[Arb]",player.flopActions))
-            counts["river"] += len(re.findall("[Arb]",player.turnActions))
-            counts["showdown"] += len(re.findall("[Arb]",player.riverActions))
-        self.preflopNraises = counts["flop"] + 2 # for blinds
+            counts["flop"] += len(re.findall("[Arb]", player.preflopActions))
+            counts["turn"] += len(re.findall("[Arb]", player.flopActions))
+            counts["river"] += len(re.findall("[Arb]", player.turnActions))
+            counts["showdown"] += len(re.findall("[Arb]", player.riverActions))
+        self.preflopNraises = counts["flop"] + 2  # for blinds
         self.flopNraises = counts["turn"]
         self.turnNraises = counts["river"]
         self.riverNraises = counts["showdown"]
@@ -72,7 +73,7 @@ class Game(object):
                                riverNPls, riverPot,
                                showdownNPls, showdownPot,
                                boardCards, players]
-        self.raiseEsts = {"preflop":[],"flop":[],"turn":[],"river":[]}
+        self.raiseEsts = {"preflop":[], "flop":[], "turn":[], "river":[]}
 
     def __str__(self):
         out = "IRC Game Record\n----------------------------------------\n"
@@ -94,7 +95,7 @@ class Game(object):
         headers = tableRowFromList("name pos preflop flop turn river bankroll action winnings cards".split(" "))
         
         out += headers + "\n"
-        out+="-" * len(headers)+"\n"
+        out += "-" * len(headers) + "\n"
         for player in self.players:
             
             out += tableRowFromList([str(x) for x in player.data[2:-1]] + [" ".join(player.cards)]) + "\n"
@@ -120,7 +121,7 @@ class PlayerInGame(object):
                  action,
                  winnings,
                  cards):
-        self.timeStamp, self.nPlayers,self.name, self.pos, self.preflopActions, self.flopActions, self.turnActions, self.riverActions, self.bankroll, self.action, self.winnings, self.cards \
+        self.timeStamp, self.nPlayers, self.name, self.pos, self.preflopActions, self.flopActions, self.turnActions, self.riverActions, self.bankroll, self.action, self.winnings, self.cards \
  = timeStamp, nPlayers, name, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings, cards
         self.data = [timeStamp, nPlayers, name, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings, cards]
     
@@ -133,7 +134,7 @@ class PlayerInGame(object):
     
     # Adjustments to fit pokerbot
     
-    def __getitem__(self,item):
+    def __getitem__(self, item):
         if item == "pot":
             return self.bankroll
     def __eq__(self, o):
@@ -198,7 +199,7 @@ class IrcHoldemDataParser(IrcDataParser):
     
     # Private methods
     
-    def __init__(self,dataDirPath=DATA_DIR_PATH, playerSkipProb=0):
+    def __init__(self, dataDirPath=DATA_DIR_PATH, playerSkipProb=0):
         self.nGames = 0
         self.badGames = 0
         
@@ -212,14 +213,14 @@ class IrcHoldemDataParser(IrcDataParser):
         self._playerIt = self._makePlayerIterator(playerSkipProb)
         self._gameIt = self._makeGamesDataIterator()
     
-    def _makePlayerIterator(self,skipProb):
+    def _makePlayerIterator(self, skipProb):
         """Returns a generator that iterates over all players
         in the dataset. Skipes a plyer with porbability skipProb.
         skipProb effectively decides what is the fraction of players
         the fraction of players we get at the end."""
         
         
-        count=0
+        count = 0
         # Go through all game files
         for headPath in self._headPaths:
             for folder in os.listdir(headPath):
@@ -232,11 +233,11 @@ class IrcHoldemDataParser(IrcDataParser):
                     # Decide if should skip:
                     _, name = splitext(playerFileName)
                     
-                    count+=1
+                    count += 1
                     
                     self._seenPlayers.add(name)
                     if name in self._seenPlayers\
-                    or not(numpy.random.binomial(1,skipProb)):
+                    or not(numpy.random.binomial(1, skipProb)):
                         
                         playerPath = join(path, "pdb", playerFileName) 
                         yield self._playerFromFile(playerPath)
@@ -311,13 +312,16 @@ class IrcHoldemDataParser(IrcDataParser):
             players = []  # PlayerInGame objects
             
             for playerName in playerNames:
-                playerPath = join(rootPath, "pdb", "pdb." + playerName) 
+                playerPath = join(rootPath, "pdb", "pdb." + playerName)
                 # Search for game line
-                with open(playerPath) as playerFile:
-                    for line in playerFile:
-                        lineElems = splitIrcLine(line)
-                        if lineElems[1] == timeStamp:
-                            break
+                try:
+                    with open(playerPath) as playerFile:
+                        for line in playerFile:
+                            lineElems = splitIrcLine(line)
+                            if lineElems[1] == timeStamp:
+                                break
+                except OSError:
+                    continue
                 # parse player data
                 name, timeStamp, nPlayers, pos, preflopActions, flopActions, turnActions, riverActions, bankroll, action, winnings = lineElems[:11]
                 cards = lineElems[11:]

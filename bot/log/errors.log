@@ -168,3 +168,211 @@
 2017-12-20 20:30:12,354 - montecarlo - WARNING - Cutting short montecarlo due to timeout
 2017-12-20 20:30:12,354 - montecarlo - WARNING - Passes: 57870
 2017-12-20 20:30:12,355 - montecarlo - WARNING - Runs: 5934
+2017-12-21 00:29:03,717 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 00:29:03,738 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 00:29:17,961 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 00:29:17,963 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 00:29:17,979 - montecarlo - WARNING - Cutting short montecarlo due to timeout
+2017-12-21 00:29:17,980 - montecarlo - WARNING - Passes: 1013
+2017-12-21 00:29:17,981 - montecarlo - WARNING - Runs: 97
+2017-12-21 00:29:30,561 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 00:29:30,563 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 00:29:30,590 - montecarlo - WARNING - Cutting short montecarlo due to timeout
+2017-12-21 00:29:30,590 - montecarlo - WARNING - Passes: 1007
+2017-12-21 00:29:30,592 - montecarlo - WARNING - Runs: 85
+2017-12-21 00:33:06,909 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 00:33:06,911 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 00:33:06,930 - montecarlo - WARNING - Cutting short montecarlo due to timeout
+2017-12-21 00:33:06,931 - montecarlo - WARNING - Passes: 1013
+2017-12-21 00:33:06,932 - montecarlo - WARNING - Runs: 117
+2017-12-21 00:36:36,928 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 00:36:36,930 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 00:50:33,487 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 00:50:33,489 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 00:52:26,903 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 00:52:26,947 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 00:57:13,969 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 00:57:13,971 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 00:57:25,329 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 00:57:25,330 - montecarlo - ERROR - No preflop range for bot, assuming 50% relative equity
+2017-12-21 01:00:18,505 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:03:07,658 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:03:07,659 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:10:21,371 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:10:21,372 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:12:31,650 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:13:03,083 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:13:38,552 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:13:38,552 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:13:38,979 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:14:32,993 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:15:26,484 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:15:35,285 - table - CRITICAL - Table cards not recognised correctly: 1
+2017-12-21 01:17:18,384 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:17:18,384 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:19:13,604 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:19:13,604 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:19:23,883 - table - CRITICAL - Table cards not recognised correctly: 1
+2017-12-21 01:21:35,195 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:21:35,196 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:22:11,976 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:22:30,627 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:24:36,425 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:24:36,425 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:24:36,715 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:24:47,480 - table - CRITICAL - Table cards not recognised correctly: 1
+2017-12-21 01:25:46,147 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:28:04,703 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:28:04,704 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:30:01,122 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:32:10,392 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:33:22,261 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:33:22,261 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:37:15,669 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:37:15,670 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:38:53,511 - table - WARNING - Taking call value from button on the right
+2017-12-21 01:41:10,796 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:41:10,796 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:42:34,254 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:42:57,397 - decision - WARNING - Sheetname not found: 32
+2017-12-21 01:42:57,398 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:45:12,109 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:46:32,516 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:46:52,476 - decision - WARNING - Sheetname not found: 22
+2017-12-21 01:46:52,476 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:46:52,724 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:47:15,014 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:48:29,500 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:48:29,500 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:51:43,653 - decision - WARNING - Sheetname not found: 6
+2017-12-21 01:51:43,653 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 01:53:02,103 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:57:25,754 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:58:46,949 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:59:29,052 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 01:59:47,382 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:00:05,633 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:03:00,236 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:08:02,548 - handmemory - WARNING - Reverse sheetname not found: 22R1
+2017-12-21 02:08:02,548 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:08:02,551 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:08:02,553 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:08:02,556 - handmemory - WARNING - Reverse sheetname not found: 42R1
+2017-12-21 02:08:02,556 - handmemory - WARNING - Trying to cut last element of reverse sheet: 42
+2017-12-21 02:08:02,556 - handmemory - WARNING - Cut reverse sheetname not found either: 42
+2017-12-21 02:08:02,557 - handmemory - WARNING - Using backup reverse sheet: 4
+2017-12-21 02:08:15,707 - handmemory - WARNING - Reverse sheetname not found: 22R1
+2017-12-21 02:08:15,708 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:08:15,710 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:08:15,711 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:08:15,713 - handmemory - WARNING - Reverse sheetname not found: 42R1
+2017-12-21 02:08:15,714 - handmemory - WARNING - Trying to cut last element of reverse sheet: 42
+2017-12-21 02:08:15,714 - handmemory - WARNING - Cut reverse sheetname not found either: 42
+2017-12-21 02:08:15,714 - handmemory - WARNING - Using backup reverse sheet: 4
+2017-12-21 02:08:16,322 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:08:25,694 - handmemory - WARNING - Reverse sheetname not found: 22R1
+2017-12-21 02:08:25,695 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:08:25,697 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:08:25,698 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:08:25,701 - handmemory - WARNING - Reverse sheetname not found: 42R1
+2017-12-21 02:08:25,701 - handmemory - WARNING - Trying to cut last element of reverse sheet: 42
+2017-12-21 02:08:25,701 - handmemory - WARNING - Cut reverse sheetname not found either: 42
+2017-12-21 02:08:25,702 - handmemory - WARNING - Using backup reverse sheet: 4
+2017-12-21 02:08:37,908 - handmemory - WARNING - Reverse sheetname not found: 22R1
+2017-12-21 02:08:37,908 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:08:37,911 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:08:37,913 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:08:37,917 - handmemory - WARNING - Reverse sheetname not found: 42R1
+2017-12-21 02:08:37,917 - handmemory - WARNING - Trying to cut last element of reverse sheet: 42
+2017-12-21 02:08:37,918 - handmemory - WARNING - Cut reverse sheetname not found either: 42
+2017-12-21 02:08:37,918 - handmemory - WARNING - Using backup reverse sheet: 4
+2017-12-21 02:10:10,765 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:13:03,774 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:13:23,394 - decision - WARNING - Sheetname not found: 32
+2017-12-21 02:13:23,395 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 02:14:59,145 - decision - WARNING - Sheetname not found: 6
+2017-12-21 02:14:59,145 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 02:14:59,438 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:15:10,171 - table - CRITICAL - Table cards not recognised correctly: 1
+2017-12-21 02:15:31,390 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:21:12,525 - handmemory - WARNING - Reverse sheetname not found: 22R1
+2017-12-21 02:21:12,525 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:21:12,528 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:21:12,529 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:21:12,531 - handmemory - WARNING - Reverse sheetname not found: 32R1
+2017-12-21 02:21:12,531 - handmemory - WARNING - Trying to cut last element of reverse sheet: 32
+2017-12-21 02:21:12,532 - handmemory - WARNING - Cut reverse sheetname not found either: 32
+2017-12-21 02:21:12,532 - handmemory - WARNING - Using backup reverse sheet: 3
+2017-12-21 02:21:12,534 - handmemory - WARNING - Reverse sheetname not found: 42R1
+2017-12-21 02:21:12,534 - handmemory - WARNING - Trying to cut last element of reverse sheet: 42
+2017-12-21 02:21:12,535 - handmemory - WARNING - Cut reverse sheetname not found either: 42
+2017-12-21 02:21:12,535 - handmemory - WARNING - Using backup reverse sheet: 4
+2017-12-21 02:21:22,263 - handmemory - WARNING - Reverse sheetname not found: 22R1
+2017-12-21 02:21:22,264 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:21:22,269 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:21:22,270 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:21:22,276 - handmemory - WARNING - Reverse sheetname not found: 32R1
+2017-12-21 02:21:22,278 - handmemory - WARNING - Trying to cut last element of reverse sheet: 32
+2017-12-21 02:21:22,281 - handmemory - WARNING - Cut reverse sheetname not found either: 32
+2017-12-21 02:21:22,283 - handmemory - WARNING - Using backup reverse sheet: 3
+2017-12-21 02:21:22,288 - handmemory - WARNING - Reverse sheetname not found: 42R1
+2017-12-21 02:21:22,290 - handmemory - WARNING - Trying to cut last element of reverse sheet: 42
+2017-12-21 02:21:22,291 - handmemory - WARNING - Cut reverse sheetname not found either: 42
+2017-12-21 02:21:22,291 - handmemory - WARNING - Using backup reverse sheet: 4
+2017-12-21 02:21:46,957 - handmemory - WARNING - Reverse sheetname not found: 22R1
+2017-12-21 02:21:46,958 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:21:46,963 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:21:46,964 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:21:46,970 - handmemory - WARNING - Reverse sheetname not found: 32R1
+2017-12-21 02:21:46,975 - handmemory - WARNING - Trying to cut last element of reverse sheet: 32
+2017-12-21 02:21:46,980 - handmemory - WARNING - Cut reverse sheetname not found either: 32
+2017-12-21 02:21:46,987 - handmemory - WARNING - Using backup reverse sheet: 3
+2017-12-21 02:21:46,994 - handmemory - WARNING - Reverse sheetname not found: 42R1
+2017-12-21 02:21:46,994 - handmemory - WARNING - Trying to cut last element of reverse sheet: 42
+2017-12-21 02:21:46,994 - handmemory - WARNING - Cut reverse sheetname not found either: 42
+2017-12-21 02:21:46,995 - handmemory - WARNING - Using backup reverse sheet: 4
+2017-12-21 02:22:20,042 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:22:35,010 - handmemory - WARNING - Reverse sheetname not found: 22R5
+2017-12-21 02:22:35,010 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:22:35,013 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:22:35,014 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:22:52,774 - handmemory - WARNING - Reverse sheetname not found: 22R5
+2017-12-21 02:22:52,774 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:22:52,779 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:22:52,780 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:22:53,436 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:23:14,212 - handmemory - WARNING - Reverse sheetname not found: 22R5
+2017-12-21 02:23:14,213 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:23:14,219 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:23:14,220 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:23:37,338 - handmemory - WARNING - Reverse sheetname not found: 22R5
+2017-12-21 02:23:37,339 - handmemory - WARNING - Trying to cut last element of reverse sheet: 22
+2017-12-21 02:23:37,341 - handmemory - WARNING - Cut reverse sheetname not found either: 22
+2017-12-21 02:23:37,342 - handmemory - WARNING - Using backup reverse sheet: 2
+2017-12-21 02:25:47,540 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:26:06,549 - decision - WARNING - Sheetname not found: 12
+2017-12-21 02:26:06,549 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 02:26:06,847 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:27:10,100 - decision - WARNING - Sheetname not found: 6
+2017-12-21 02:27:10,100 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 02:31:07,241 - decision - WARNING - Sheetname not found: 6
+2017-12-21 02:31:07,242 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 02:31:07,485 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:31:22,693 - decision - WARNING - Sheetname not found: 62
+2017-12-21 02:31:22,693 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 02:32:24,997 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 02:32:50,142 - decision - WARNING - Sheetname not found: 42
+2017-12-21 02:32:50,143 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 03:51:58,471 - montecarlo - WARNING - Cutting short montecarlo due to timeout
+2017-12-21 03:51:58,472 - montecarlo - WARNING - Passes: 1001
+2017-12-21 03:51:58,472 - montecarlo - WARNING - Runs: 110
+2017-12-21 04:14:14,050 - montecarlo - WARNING - Cutting short montecarlo due to timeout
+2017-12-21 04:14:14,050 - montecarlo - WARNING - Passes: 63883
+2017-12-21 04:14:14,051 - montecarlo - WARNING - Runs: 6877
+2017-12-21 05:49:13,435 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 05:49:48,244 - montecarlo - ERROR - Opponent reverse table failed: 'CurrentHandPreflopState' object has no attribute 'bot_preflop_position_utg'
+2017-12-21 05:50:49,612 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 05:51:30,915 - decision - ERROR - Call button or pot multiple had no value
+2017-12-21 05:54:27,755 - decision - WARNING - Sheetname not found: 6
+2017-12-21 05:54:27,755 - decision - WARNING - Backup sheet in use: 2R1
+2017-12-21 05:55:28,098 - decision - ERROR - Call button or pot multiple had no value

@@ -293,9 +293,14 @@ class Table(object):
             return ''
 
     def call_genetic_algorithm(self, p):
+        """
+        Run the genetic algorithm on given strategy.
+        It is run every time the bot recognizes that it was dealt
+        new cards.
+        """
         self.gui_signals.signal_progressbar_increase.emit(5)
         self.gui_signals.signal_status.emit("Updating charts and work in background")
-        n = self.game_logger.get_game_count(p.current_strategy)
+        n = self.game_logger.get_game_count(p.current_strategy) # number of gaes with this strategy
         lg = int(p.selected_strategy['considerLastGames'])  # only consider lg last games to see if there was a loss
         f = self.game_logger.get_strategy_return(p.current_strategy, lg)
         self.gui_signals.signal_label_number_update.emit('gamenumber', str(int(n)))
@@ -310,11 +315,14 @@ class Table(object):
 
         self.logger.info("Game #" + str(n) + " - Last " + str(lg) + ": $" + str(f))
 
+        # If this game is 
         if n % int(p.selected_strategy['strategyIterationGames']) == 0 and f < float(
                 p.selected_strategy['minimumLossForIteration']):
             self.gui_signals.signal_status.emit("***Improving current strategy***")
             self.logger.info("***Improving current strategy***")
             # winsound.Beep(500, 100)
+            
+            # Improve strategy and then reload it
             GeneticAlgorithm(True, self.game_logger)
             p.read_strategy()
         else:

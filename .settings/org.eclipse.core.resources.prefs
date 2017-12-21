@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
 encoding//bot/gui/gui_qt_ui.py=utf-8
+encoding//bot/gui/gui_qt_ui_strategy_manager.py=utf-8
 encoding//bot/vboxapi/VirtualBox_constants.py=utf-8
 encoding//bot/vboxapi/__init__.py=utf-8

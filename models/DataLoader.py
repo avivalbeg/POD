@@ -1,6 +1,7 @@
 """
 Classes that represent data. They are meant to be passed as parameters to the Config class.
-Each class corresponds to a single dataset.
+Some classes corresponds to a single dataset, and some take init arguments, like 
+files from which data are read.
 """
 
 import sys
@@ -22,6 +23,7 @@ import os
 from os.path import join
 from pprint import pprint
 from pandas.core.frame import DataFrame
+from random import sample
 
 
 class DataLoader:
@@ -101,9 +103,6 @@ class DataLoader:
         return str(self)
 
 class ToyDataLoader(DataLoader):
-    """
-    A toy dataset.
-    """
     def __init__(self):
         
         self.trainX = np.array([[0, 0], [1, 1]])
@@ -116,7 +115,6 @@ class ToyDataLoader(DataLoader):
         self.test_y  = np.array([1])
         
 class ToyDataLoader2(DataLoader):
-    
     def __init__(self):
         
         self.trainX = np.array([[0, 0], [1, 1]])
@@ -232,16 +230,21 @@ class TextVectorDataLoader(DataLoader):
     of the vector is assumed to be the golden label.
     """
     
-    def __init__(self, root,nClasses=5):
+    def __init__(self, root,nFiles = 0, nClasses=5):
         """
         @praam root: All files in this directory will be parsed.
-        @param nClasses: if greater than 0, then the golden labels
+        @param nFiles: Number of files in root that will be sampled. If 0 (default),
+        then all files are taken. 
+        @param nClasses: If greater than 0, then the golden labels
         will be partitioned into the given number of discrete classes. 
         """
         assert nClasses>=0
         
         paths = os.listdir(root)
         
+        if nFiles:
+            paths = sample(paths, nFiles)
+            
         # Load data from all fils in dir
         Xy=pd.DataFrame.from_csv(join(root,paths[0]),sep=" ")
         for path in paths[1:]:

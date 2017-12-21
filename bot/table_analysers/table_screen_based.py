@@ -774,23 +774,28 @@ class TableScreenBased(Table):
         else:
             return True
 
-    def get_new_hand(self, mouse, h, p):
+    def get_new_hand(self, mouse, hist, p):
         self.gui_signals.signal_progressbar_increase.emit(5)
-        if h.previousCards != self.mycards:
+        
+        # BUG ALERT: what happens if this round's cards are the same as last round?
+        # However, this is extremely rare and difficult to solve at the same time, 
+        # which makes it not worthy to address
+        if hist.previousCards != self.mycards:
             self.logger.info("+++========================== NEW HAND ==========================+++")
             self.time_new_cards_recognised = datetime.datetime.utcnow()
-            self.get_game_number_on_screen(h)
-            self.get_my_funds(h, p)
+            self.get_game_number_on_screen(hist)
+            self.get_my_funds(hist, p)
 
-            h.lastGameID = str(h.GameID)
-            h.GameID = int(round(np.random.uniform(0, 999999999), 0))
+            hist.lastGameID = str(hist.GameID)
+            hist.GameID = int(round(np.random.uniform(0, 999999999), 0))
             cards = ' '.join(self.mycards)
             self.gui_signals.signal_status.emit("New hand: " + str(cards))
 
-            if not len(h.myFundsHistory) == 0:
-                self.myFundsChange = float(self.myFunds) - float(h.myFundsHistory[-1])
-                self.game_logger.mark_last_game(self, h, p)
-
+            if not len(hist.myFundsHistory) == 0:
+                self.myFundsChange = float(self.myFunds) - float(hist.myFundsHistory[-1])
+                self.game_logger.mark_last_game(self, hist, p)
+            
+            # Run genetic algorithm
             t_algo = threading.Thread(name='Algo', target=self.call_genetic_algorithm, args=(p,))
             t_algo.daemon = True
             t_algo.start()
@@ -798,18 +803,18 @@ class TableScreenBased(Table):
             self.gui_signals.signal_funds_chart_update.emit(self.game_logger)
             self.gui_signals.signal_bar_chart_update.emit(self.game_logger, p.current_strategy)
 
-            h.myLastBet = 0
-            h.myFundsHistory.append(self.myFunds)
-            h.previousCards = self.mycards
-            h.lastSecondRoundAdjustment = 0
-            h.last_round_bluff = False  # reset the bluffing marker
-            h.round_number = 0
+            hist.myLastBet = 0
+            hist.myFundsHistory.append(self.myFunds)
+            hist.previousCards = self.mycards
+            hist.lastSecondRoundAdjustment = 0
+            hist.last_round_bluff = False  # reset the bluffing marker
+            hist.round_number = 0
 
             mouse.move_mouse_away_from_buttons_jump()
             self.take_screenshot(False, p)
         else:
-            self.logger.info("Game number on screen: " + str(h.game_number_on_screen))
-            self.get_my_funds(h, p)
+            self.logger.info("Game number on screen: " + str(hist.game_number_on_screen))
+            self.get_my_funds(hist, p)
 
         return True
 
