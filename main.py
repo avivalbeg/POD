@@ -73,8 +73,8 @@ def main(args):
     
     # Watchuwanna do?
     #getIrcData()
-#     dlPokerBotData()
-    mineGameData()
+    dlPokerBotData()
+#     mineGameData()
     #mineHandData()
     #trainEquityPrediction()
     

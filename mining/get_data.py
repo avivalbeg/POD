@@ -124,7 +124,12 @@ def dlPokerBotData():
     gameDf = np.nan
     
     for game in games:
-        rounds = sorted(game["rounds"], key=lambda x:(x["round_values"]["gameStage"], x["round_number"]))
+        rounds = sorted(game["rounds"], key=lambda x:(GameStages.index(x["round_values"]["gameStage"]), x["round_number"]))
+        
+        print ([(x["round_values"]["gameStage"], 
+                x["round_number"]) for x in rounds])
+        
+        
         if not rounds: continue
         gameDf = pd.DataFrame(cleanMdbDic(encodeRec(rounds[0]["round_values"])))
         for roundData in rounds[1:]:
