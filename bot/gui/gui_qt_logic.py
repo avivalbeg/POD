@@ -2,7 +2,7 @@ import matplotlib
 from PyQt5.QtCore import *
 from constants import defaultStrategy
 
-matplotlib.use('Qt5Agg')
+# matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas)
 from matplotlib.figure import Figure

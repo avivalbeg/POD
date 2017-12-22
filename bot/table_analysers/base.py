@@ -303,7 +303,7 @@ class Table(object):
         self.gui_signals.signal_status.emit("Updating charts and work in background")
         n = self.game_logger.get_game_count(p.current_strategy) # number of gaes with this strategy
         lg = int(p.selected_strategy['considerLastGames'])  # only consider lg last games to see if there was a loss
-        f = self.game_logger.get_strategy_return(p.current_strategy, lg)
+        encodeRec = self.game_logger.get_strategy_return(p.current_strategy, lg)
         self.gui_signals.signal_label_number_update.emit('gamenumber', str(int(n)))
 
         total_winnings = self.game_logger.get_strategy_return(p.current_strategy, 9999999)
@@ -314,10 +314,10 @@ class Table(object):
         self.logger.info("Winnings in BB per 100 hands: %s", np.round(winnings_per_bb_100, 2))
         self.gui_signals.signal_label_number_update.emit('winnings', str(np.round(winnings_per_bb_100, 2)))
 
-        self.logger.info("Game #" + str(n) + " - Last " + str(lg) + ": $" + str(f))
+        self.logger.info("Game #" + str(n) + " - Last " + str(lg) + ": $" + str(encodeRec))
 
         # If this game is 
-        if n % int(p.selected_strategy['strategyIterationGames']) == 0 and f < float(
+        if n % int(p.selected_strategy['strategyIterationGames']) == 0 and encodeRec < float(
                 p.selected_strategy['minimumLossForIteration']):
             self.gui_signals.signal_status.emit("***Improving current strategy***")
             self.logger.info("***Improving current strategy***")
@@ -434,3 +434,5 @@ class Table(object):
 
         self.preflop_sheet_name = sheet_name
         return self.preflop_sheet_name
+
+

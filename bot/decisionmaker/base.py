@@ -5,8 +5,8 @@ class DecisionBase(object):
     # Contains routines that make the actual decisions to play: the main function is make_decision
     def calc_bet_EV(self, E, P, S, c, t):
         n = 1 if t.isHeadsUp == True else 2
-        f = max(0, 1 - min(S / P, 1)) * c * n
-        EV = E * (P + f) - (1 - E) * S
+        encodeRec = max(0, 1 - min(S / P, 1)) * c * n
+        EV = E * (P + encodeRec) - (1 - E) * S
         return EV
 
     def calc_call_EV(self, E, P, S):

@@ -44,6 +44,9 @@ from util import *
 
 
 # Remove duplicates
+# @TODO: Add more features like:
+# - number of checks
+# - other players more details?
 FEATURES = [
     "h.round_number",
     "table.myPos",
@@ -343,13 +346,13 @@ class IrcDataMiner:
             table.currentCallValue,
             ]
         new = []
-        for f in features:
-            if np.isnan(f):
+        for encodeRec in features:
+            if np.isnan(encodeRec):
                 new.append(-1)
-            elif features.index(f) in DOUBLE_FEATS:
-                new.append(f)
+            elif features.index(encodeRec) in DOUBLE_FEATS:
+                new.append(encodeRec)
             else:
-                new.append(int(f))
+                new.append(int(encodeRec))
         return np.array(new)
 
     def newTable(self, game, player, h):

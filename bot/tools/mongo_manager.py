@@ -23,19 +23,19 @@ class UpdateChecker():
 
     def downloader(self):
         self.file_name = "Pokerbot_installer.exe"
-        with open(self.file_name, "wb") as f:
+        with open(self.file_name, "wb") as encodeRec:
             print("Downloading %s" % self.file_name)
             response = requests.get(self.dl_link, stream=True)
             total_length = response.headers.get('content-length')
 
             if total_length is None:  # no content length header
-                f.write(response.content)
+                encodeRec.write(response.content)
             else:
                 dl = 0
                 total_length = int(total_length)
                 for data in response.iter_content(chunk_size=4096):
                     dl += len(data)
-                    f.write(data)
+                    encodeRec.write(data)
                     done = int(50 * dl / total_length)
                     sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50 - done)))
                     sys.stdout.flush()
@@ -185,6 +185,10 @@ class StrategyHandler(object):
 
 
 class GameLogger(object):
+    """
+    Class for logging a game state into a server using mongodb.
+    """
+    
     def __init__(self, connection='mongodb://guest:donald@dickreuter.com:27017/POKER'):
         self.mongoclient = MongoClient('mongodb://guest:donald@dickreuter.com:27017/POKER')
         self.mongodb = self.mongoclient.POKER  # This is the database of games 
@@ -312,7 +316,27 @@ class GameLogger(object):
         except:
             collusion_cards = ''
         return collusion_cards, player_dropped_out
-
+    
+    
+            
+    # Delete:
+    def get_test(self):
+        return self.mongodb.games.aggregate([
+            {"$unwind": "$rounds"},
+            {"$match": {"Template": {"$regex": "Default1"}}},
+            {"$group": {
+                "_id": {"GameID": "$GameID", "gameStage": "$rounds.round_values.gameStage"},
+                "lastDecision": {"$last": "$rounds.round_values.decision"},
+                "FinalOutcome": {"$last": "$FinalOutcome"},
+                "FinalFundsChange": {"$last": "$FinalFundsChange"},
+            }
+            },
+            {"$group": {
+                "_id": {"ld": "$lastDecision", "fa": "$FinalOutcome", "gs": "$_id.gameStage"},
+                "Total": {"$sum": "$FinalFundsChange"}}}
+        ])
+            
+    
     def get_neural_training_data(self):
         """
         I think this retrieves all game data stored
@@ -329,18 +353,15 @@ class GameLogger(object):
                     "advice_fold": "$rounds.round_values.fold_advice",
                     "advice_call": "$rounds.round_values.call_advice",
                     "advice_raise": "$rounds.round_values.raise_advice",
-
-                    "equity": "$rounds.round_values.equity",
-                    "total_pot": "$rounds.round_values.totalPotValue",
-                    "min_call": "$rounds.round_values.minCall",
-                    "min_bet": "$rounds.round_values.minBet",
-
-                    "_id": 0}}
+                     
+                    "round_values" : "$rounds.round_values", # Get all fields of a game
+                     
+                     
+                    "_id": 0}},
+        
         ])
 
-        result = [d for d in cursor]
-
-        return result
+        return cursor
 
     def get_stacked_bar_data(self, p_name, p_value, chartType):
         """
@@ -375,7 +396,7 @@ class GameLogger(object):
                 "_id": {"ld": "$lastDecision", "fa": "$FinalOutcome", "gs": "$_id.gameStage"},
                 "Total": {"$sum": "$FinalFundsChange"}}}
         ])
-        
+
         count = 0
         for e in cursor:
             count += 1
@@ -391,15 +412,14 @@ class GameLogger(object):
                     self.d['Call', 'River', 'Won'], self.d['Bet', 'Flop', 'Won'], self.d['Bet', 'Turn', 'Won'],
                     self.d['Bet', 'River', 'Won'], self.d['Bet half pot', 'Turn', 'Won'],
                     self.d['Bet half pot', 'River', 'Won'], 0, 0, 0, 0]]
-
         if chartType == 'spider':
             Data = {
                 'column names':
-                    ['Call Flop', 'Call Turn', 'Call River', 'Bet Flop', 'Bet Turn', 'Bet River', 'Bet Half Pot Turn',
-                     'Bet Half Pot River', 'Fold PreFlop', 'Fold Flop', 'Fold Turn', 'Fold River'],
+                        ['Call Flop', 'Call Turn', 'Call River', 'Bet Flop', 'Bet Turn', 'Bet River', 'Bet Half Pot Turn',
+                         'Bet Half Pot River', 'Fold PreFlop', 'Fold Flop', 'Fold Turn', 'Fold River'],
                 'Sum of FinalFundsChangeABS':
                     numbers}
-
+            
         if chartType == 'stackedBar':
             FinalData = [[self.d['Bet Bluff', 'PreFlop', 'Won'], self.d['Bet Bluff', 'PreFlop', 'Lost'], 0,
                           self.d['Bet Bluff', 'Flop', 'Won'] + self.d['Check Deception', 'Flop', 'Won'] + self.d[
@@ -434,9 +454,10 @@ class GameLogger(object):
                           self.d['Check', 'River', 'Won'], self.d['Check', 'River', 'Lost']],
                          [0, self.d['Fold', 'PreFlop', 'Lost'], 0, 0, self.d['Fold', 'Flop', 'Lost'], 0, 0,
                           self.d['Fold', 'Turn', 'Lost'], 0, 0, self.d['Fold', 'River', 'Lost']]]
-
+            
         return FinalData
 
+        
     def get_histrogram_data(self, p_name, p_value, game_stage, decision):
 
         cursor = self.mongodb.games.aggregate([
@@ -700,6 +721,6 @@ if __name__ == '__main__':
 
     # strategy_return = L.get_strategy_return('.*', 500)
     # print("Return: " + str(strategy_return))
+    gameData = L.get_neural_training_data()
 
-    print(len(L.get_neural_training_data()))
-    "last value: 81217"
+    "last #games: 81217"

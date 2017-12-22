@@ -283,8 +283,7 @@ class ClassifierANN(ANN):
         return (session.run(accuracy, feed_dict={self.inputsPlaceholder: X,
                                               self.labelsPlaceholder: y}))
 
-
-
+#@TODO: Generalize this into n layers
 class SoftmaxANN(ClassifierANN,TFModel):
     
     def __init__(self, config):
@@ -311,13 +310,13 @@ class SoftmaxANN(ClassifierANN,TFModel):
     def train(self, XyIter, session):
         TFModel.train(self,XyIter,session)
 
-class DoubleLayerSoftmaxANN(ClassifierANN,TFModel):
+class DoubleLayerSoftmaxANN(SoftmaxANN):
     """
     Based on:
     https://stackoverflow.com/questions/38136961/how-to-create-2-layers-neural-network-using-tensorflow-and-python-on-mnist-data
     """
     
-    def __init__(self, config, hiddenLayerSize=1000):
+    def __init__(self, config, hidSize=1000):
         ClassifierANN.__init__(self, config)
         
         # placeholders 
@@ -325,12 +324,12 @@ class DoubleLayerSoftmaxANN(ClassifierANN,TFModel):
         self.labelsPlaceholder = tf.placeholder(tf.float32, [None, self._config.nClasses])
         
         # layer 1
-        W1 = tf.Variable(tf.random_normal((self._config.nFeatures, hiddenLayerSize)))
+        W1 = tf.Variable(tf.random_normal((self._config.nFeatures, hidSize)))
         b1 = tf.Variable(tf.random_normal((1,)))
         y1 = tf.nn.sigmoid(tf.matmul(self.inputsPlaceholder, W1) + b1) 
         
         # layer 2
-        W2 = tf.Variable(tf.random_normal((hiddenLayerSize, self._config.nClasses)))
+        W2 = tf.Variable(tf.random_normal((hidSize, self._config.nClasses)))
         b2 = tf.Variable(tf.random_normal((1,)))
         y2 = tf.nn.softmax(tf.matmul(y1, W2) + b2)
         
@@ -341,13 +340,44 @@ class DoubleLayerSoftmaxANN(ClassifierANN,TFModel):
         reduction_indices=[1]))
         self.train_step = tf.train.GradientDescentOptimizer(self._config.lr).minimize(self.cost)
 
-    def predict(self, X, session):
-        return TFModel.predict(self,X,session)
-    def train(self, XyIter, session):
-        TFModel.train(self,XyIter,session)
+class TripleLayerSoftmaxANN(SoftmaxANN):
+    """
+    Based on:
+    https://stackoverflow.com/questions/38136961/how-to-create-2-layers-neural-network-using-tensorflow-and-python-on-mnist-data
+    """
+    
+    def __init__(self, config, hidSize1=1000,hidSize2=1000):
+        ClassifierANN.__init__(self, config)
+        
+        # placeholders 
+        self.inputsPlaceholder = tf.placeholder(tf.float32, [None, self._config.nFeatures])
+        self.labelsPlaceholder = tf.placeholder(tf.float32, [None, self._config.nClasses])
+        
+        # layer 1
+        W1 = tf.Variable(tf.random_normal((self._config.nFeatures, hidSize1)))
+        b1 = tf.Variable(tf.random_normal((1,)))
+        y1 = tf.nn.sigmoid(tf.matmul(self.inputsPlaceholder, W1) + b1) 
+        
+        # layer 2
+        W2 = tf.Variable(tf.random_normal((hidSize1, hidSize2)))
+        b2 = tf.Variable(tf.random_normal((1,)))
+        y2 = tf.nn.softmax(tf.matmul(y1, W2) + b2)
+
+        # layer 3
+        W3 = tf.Variable(tf.random_normal((hidSize2, self._config.nClasses)))
+        b3 = tf.Variable(tf.random_normal((1,)))
+        y3 = tf.nn.softmax(tf.matmul(y2, W3) + b3)
+        
+        # output
+        self.prediction = y3
+        
+        self.cost = tf.reduce_mean(-tf.reduce_sum(self.labelsPlaceholder * tf.log(self.prediction),
+        reduction_indices=[1]))
+        self.train_step = tf.train.GradientDescentOptimizer(self._config.lr).minimize(self.cost)
 
 
-class RegressionModel(TFModel):
+
+class TFRegressionModel(TFModel):
             
     def eval(self, X, y, session):    
         return (session.run(self.cost, feed_dict={self.labelsPlaceholder: y,

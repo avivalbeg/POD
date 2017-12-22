@@ -270,8 +270,8 @@ class IrcHoldemDataParser(IrcDataParser):
     
     def _playerFromFile(self, path):
         player = Player(splitext(path)[-1][1:])
-        with open(path) as f:
-            for line in f:
+        with open(path) as encodeRec:
+            for line in encodeRec:
                 try:
                     lineElems = splitIrcLine(line)
     

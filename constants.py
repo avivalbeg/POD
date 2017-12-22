@@ -4,6 +4,8 @@
 DATA_DIR_PATH = "data"
 IRC_DATA_PATH = "data/irc-data"
 HAND_DATA_PATH = "data/hand-data"
+POKER_BOT_DATA_PATH = "data/pb-data"
+
 
 # Poker info
 
@@ -18,6 +20,12 @@ FOLD = "f"
 BET = "b"
 RAISE = "r"
 KICKED= "K"
+
+IRRELEVANT_FEATS = [
+    
+    
+    
+    ]
 
 # Stages
 GameStages = ['PreFlop', 'Flop', 'Turn', 'River', 'Showdown']

@@ -1,6 +1,18 @@
+# -*- coding: utf-8 -*-
 import re
+import sys
 
-
+def encodeRec(x):
+    """
+    Recursively encode the contents of a dictionary. 
+    """
+    
+    if type(x)==type({}):
+        return {k:encodeRec(v) for k,v in x.items()}
+    elif type(x)==type(""):
+        return x.encode(sys.stdout.encoding, errors='replace')
+    else:
+        return x
 
 def splitIrcLine(line):
     return re.split("\s+", line.strip())
@@ -48,4 +60,6 @@ def getOrDefault(obj, item, dflt):
 def ircCardToBotCard(card):
     return card[0] + card[1].upper()
 
-
+class DummyLogger:
+    def info(self, *args):
+        pass

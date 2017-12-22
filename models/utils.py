@@ -40,9 +40,9 @@ def feature_normalize(dataset):
 def append_bias_reshape(features, labels):
     n_training_samples = features.shape[0]
     n_dim = features.shape[1]
-    f = np.reshape(np.c_[np.ones(n_training_samples), features], [n_training_samples, n_dim + 1])
+    encodeRec = np.reshape(np.c_[np.ones(n_training_samples), features], [n_training_samples, n_dim + 1])
     l = np.reshape(labels, [n_training_samples, 1])
-    return f, l
+    return encodeRec, l
 
 def printdb(x=""):
     print("% " + str(x))

@@ -16,8 +16,8 @@ class TestDataCollection(TestCase):
     dc = IrcDataMiner(join("..",IRC_DATA_PATH),join("..", HAND_DATA_PATH))
         
     def test1(self):
-        with open("game-pickles/game-2.pkl", "rb") as f:
-            game = load(f)
+        with open("game-pickles/game-2.pkl", "rb") as encodeRec:
+            game = load(encodeRec)
                
         player = game.players[1]
         featsDict = self.getFeatures(game, player, ("PreFlop", 1))
@@ -46,8 +46,8 @@ class TestDataCollection(TestCase):
 
     
     def test2(self):
-        with open("game-pickles/game-2.pkl", "rb") as f:
-            game = load(f)
+        with open("game-pickles/game-2.pkl", "rb") as encodeRec:
+            game = load(encodeRec)
         player = game.players[3]
         featsDict = self.getFeatures(game, player, ("Turn", 1))
         self.assertEquals(featsDict['GameStages.index(table.gameStage)'], 2)
@@ -72,8 +72,8 @@ class TestDataCollection(TestCase):
         self.assertEquals(featsDict['table.totalPotValue'], 140)
     
     def test3(self):
-        with open("game-pickles/game-4.pkl", "rb") as f:
-            game = load(f)
+        with open("game-pickles/game-4.pkl", "rb") as encodeRec:
+            game = load(encodeRec)
         player = game.players[0]
         featsDict = self.getFeatures(game, player, ("Flop", 1))
         self.assertEquals(featsDict['GameStages.index(table.gameStage)'], 1)
@@ -98,8 +98,8 @@ class TestDataCollection(TestCase):
         self.assertEquals(featsDict['table.totalPotValue'], 90)
 
     def test4(self):
-        with open("game-pickles/game-4.pkl", "rb") as f:
-            game = load(f)
+        with open("game-pickles/game-4.pkl", "rb") as encodeRec:
+            game = load(encodeRec)
         player = game.players[2]
         featsDict = self.getFeatures(game, player, ("Flop", 0))
         self.assertEquals(featsDict['GameStages.index(table.gameStage)'], 1)

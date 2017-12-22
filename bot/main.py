@@ -1,11 +1,12 @@
 import matplotlib
+
+
+# matplotlib.use('Qt5Agg')
+matplotlib.use('agg')
 import pandas as pd
 import time
 import numpy as np
 import pymongo
-
-# matplotlib.use('Qt5Agg')
-matplotlib.use('agg')
 import os, sys
 sys.path=["C:\\Users\\Omer ASUS\\git\\POD"]+sys.path
 # os.environ['KERAS_BACKEND']='theano'
