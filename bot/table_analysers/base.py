@@ -301,7 +301,7 @@ class Table(object):
         """
         self.gui_signals.signal_progressbar_increase.emit(5)
         self.gui_signals.signal_status.emit("Updating charts and work in background")
-        n = self.game_logger.get_game_count(p.current_strategy) # number of gaes with this strategy
+        n = self.game_logger.get_game_count(p.current_strategy) # number of games with this strategy
         lg = int(p.selected_strategy['considerLastGames'])  # only consider lg last games to see if there was a loss
         encodeRec = self.game_logger.get_strategy_return(p.current_strategy, lg)
         self.gui_signals.signal_label_number_update.emit('gamenumber', str(int(n)))
@@ -316,7 +316,7 @@ class Table(object):
 
         self.logger.info("Game #" + str(n) + " - Last " + str(lg) + ": $" + str(encodeRec))
 
-        # If this game is 
+        # Decide if apply genetic algorithm if a certain amount of rounds passed and you lost a certain amount of money
         if n % int(p.selected_strategy['strategyIterationGames']) == 0 and encodeRec < float(
                 p.selected_strategy['minimumLossForIteration']):
             self.gui_signals.signal_status.emit("***Improving current strategy***")

@@ -204,25 +204,30 @@ class GameLogger(object):
             return x
         return [x]
 
-    def write_log_file(self, p, h, t, d):
+    def write_log_file(self, strategyHandler, hist, table, decision):
+        """
+        Insert data about a round into the mongo DB. Done right after
+        any decision made.
+        """
         hDict = {}
         tDict = {}
         dDict = {}
         pDict = {}
 
-        for key, val in p.selected_strategy.items():
+        for key, val in strategyHandler.selected_strategy.items():
             pDict[key] = val
-        for key, val in vars(h).items():
+        for key, val in vars(hist).items():
             hDict[key] = " ".join(str(ele) for ele in self.isIterable(val))
-        for key, val in vars(t).items():
+        for key, val in vars(table).items():
             if len(" ".join(str(ele) for ele in self.isIterable(val))) < 50:
                 tDict[key] = " ".join(str(ele) for ele in self.isIterable(val))
-        for key, val in vars(d).items():
+        for key, val in vars(decision).items():
             if len(" ".join(str(ele) for ele in self.isIterable(val))) < 20:
                 dDict[key] = " ".join(str(ele) for ele in self.isIterable(val))
 
         pDict['computername'] = os.environ['COMPUTERNAME']
-
+        
+        # Create data frames for the round's info         
         Dh = pd.DataFrame(hDict, index=[0])
         Dt = pd.DataFrame(tDict, index=[0])
         Dd = pd.DataFrame(dDict, index=[0])
@@ -230,7 +235,7 @@ class GameLogger(object):
 
         self.FinalDataFrame = pd.concat([Dd, Dt, Dh, Dp], axis=1)
         rec = self.FinalDataFrame.to_dict('records')[0]
-        rec['other_players'] = t.other_players
+        rec['other_players'] = table.other_players
         rec['logging_timestamp'] = datetime.datetime.utcnow()
         del rec['_id']
         result = self.mongodb.rounds.insert_one(rec)
@@ -319,45 +324,23 @@ class GameLogger(object):
     
     
             
-    # Delete:
-    def get_test(self):
-        return self.mongodb.games.aggregate([
-            {"$unwind": "$rounds"},
-            {"$match": {"Template": {"$regex": "Default1"}}},
-            {"$group": {
-                "_id": {"GameID": "$GameID", "gameStage": "$rounds.round_values.gameStage"},
-                "lastDecision": {"$last": "$rounds.round_values.decision"},
-                "FinalOutcome": {"$last": "$FinalOutcome"},
-                "FinalFundsChange": {"$last": "$FinalFundsChange"},
-            }
-            },
-            {"$group": {
-                "_id": {"ld": "$lastDecision", "fa": "$FinalOutcome", "gs": "$_id.gameStage"},
-                "Total": {"$sum": "$FinalFundsChange"}}}
-        ])
-            
-    
     def get_neural_training_data(self):
         """
         I think this retrieves all game data stored
         on the server.
         @TODO: make this dataset richer if possible, and train on it.
         """
-        cursor = self.mongodb.games.aggregate([
-            {"$unwind": "$rounds"},
-            {"$match": {"Template": {"$regex": ".*"},
-                        "software_version": {"$gte": 1.85}
-                        }},
+        cursor = self.mongodb.rounds.aggregate([
+#             {"$unwind": "$rounds"},
             {"$project":
                 {
                     "advice_fold": "$rounds.round_values.fold_advice",
                     "advice_call": "$rounds.round_values.call_advice",
                     "advice_raise": "$rounds.round_values.raise_advice",
                      
-                    "round_values" : "$rounds.round_values", # Get all fields of a game
+                    "round_values" : "$round_values", # Get all fields of a game
                      
-                     
-                    "_id": 0}},
+                    }},
         
         ])
 
@@ -381,7 +364,7 @@ class GameLogger(object):
                 for decision in self.decisions:
                     self.d[decision, gameStage, outcome] = 0
         
-        # Iterator over game logs
+        # Iterator over game logs, accumulating gains and losses
         cursor = self.mongodb.games.aggregate([
             {"$unwind": "$rounds"},
             {"$match": {"Template": {"$regex": p_value}}},

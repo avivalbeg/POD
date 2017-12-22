@@ -2,6 +2,22 @@
 import re
 import sys
 
+class DummyLogger:
+    def info(self, *args):
+        pass
+
+class DummyTable:
+    pass
+
+class DummyHistory:
+    pass
+
+
+def initEquityCaches():
+    relEquityCache = {}
+    globalEquityCache = {}
+
+
 def encodeRec(x):
     """
     Recursively encode the contents of a dictionary. 
@@ -60,6 +76,3 @@ def getOrDefault(obj, item, dflt):
 def ircCardToBotCard(card):
     return card[0] + card[1].upper()
 
-class DummyLogger:
-    def info(self, *args):
-        pass

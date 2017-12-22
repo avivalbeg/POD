@@ -12,12 +12,13 @@ import re
 from os.path import join, isdir, splitext, exists
 from pprint import pprint
 from random import choice
-import numpy
+import numpy as np
 from constants import *
 from util import *
+from bot.decisionmaker.montecarlo_python import MonteCarlo
+import time
+import pandas as pd
 
-
-HOLDEM_PATHS_REGEX = r"holdem*"
 
 
 class GameTracker(object):
@@ -74,6 +75,252 @@ class Game(object):
                                showdownNPls, showdownPot,
                                boardCards, players]
         self.raiseEsts = {"preflop":[], "flop":[], "turn":[], "river":[]}
+    
+    def getWinner(self):
+        winnings = [player.winnings for player in self.players]
+        if (not 0 in winnings) or not any(winnings):
+            return np.nan # Draw 
+        return self.players[np.argmax(winnings)]
+        
+    def getFinalPot(self):
+        return sum([player.winnings for player in self.players])
+    
+    def roundVectors(self, player, debugMode=False):
+        """Returns an iterator over feature vectors of the game's rounds, 
+        from the perspective of given player."""
+        hist = DummyHistory()
+        table = self.newTable(player, hist)
+        
+        # Go through the game's rounds and save all data
+        while table.gameStage != Showdown:
+            # Play stage
+            if table.gameStage != PreFlop:
+                table.max_X = 1
+            
+            someonePlayed = True  # Tells us if there are still players who didn't quit/fold
+            table.round_pot_value = 0 # re-init every stage           
+            while someonePlayed:
+                raundVector,someonePlayed = self.playRound(player, table, hist, debugMode)
+                hist.round_number += 1
+                yield raundVector
+
+            # Re-init stage variables
+            hist.round_number = 0 
+            table.currentBetValue = 0
+            table.currentCallValue = 0
+            
+            table.gameStage = getOrDefault(GameStages,
+                                           GameStages.index(table.gameStage) + 1,
+                                           None)
+            
+            # Expose cards
+            if table.gameStage == Flop:
+                table.cardsOnTable = list(map(ircCardToBotCard, self.boardCards[:3]))
+            if table.gameStage == Turn:
+                table.cardsOnTable = list(map(ircCardToBotCard, self.boardCards[:4]))
+            if table.gameStage == River:
+                table.cardsOnTable = list(map(ircCardToBotCard, self.boardCards))
+                
+            # Update equity
+            table.global_equity = self.getAbsEquity(table)
+            table.equity = self.getEquity(table)
+            
+    def playRound(self, player, table, hist, debugMode=False):
+        """Play one round of this game, starting from the given table and history states.
+        Returns a tuple (np.array,bool). The first element is the feature 
+        vector of the round if it was played by player, and None otherwise.
+        The second element indicates whether or not someone played during this round."""
+        
+        
+        nextStage = GameStages[GameStages.index(table.gameStage) + 1]
+        prevStage = GameStages[GameStages.index(table.gameStage) + 1]
+        
+        # global bet: divide money from this stage by number of players that put in money this turn
+        betAvgGlobal = divOr0((getattr(self, nextStage.lower() + "Pot") - getattr(self, table.gameStage.lower() + "Pot"))\
+                    , len(list(filter(lambda plr: re.findall("[BrbcA]",
+                                     getattr(plr, table.gameStage.lower() + "Actions"))
+                                      , self.players))))
+        
+        features,someonePlayed = None,False
+
+        for curPlayer in self.players:
+            
+            # Find action
+            actions = getattr(curPlayer, table.gameStage.lower() + "Actions")
+            action = getOrDefault(actions,
+                                  hist.round_number,
+                                  NA)
+            
+            # Update first and second raiser and caller
+            if action == RAISE:
+                if np.isnan(table.first_raiser):
+                    table.first_raiser = curPlayer.pos
+                elif (not np.isnan(table.first_raiser)) \
+                    and np.isnan(table.second_raiser):
+                        table.second_raiser = curPlayer.pos
+            if action == CALL:
+                if np.isnan(table.first_caller):
+                    table.first_caller = curPlayer.pos
+                elif (not np.isnan(table.first_caller)) \
+                    and np.isnan(table.second_caller):
+                        table.second_caller = curPlayer.pos
+                
+            # Weigh bet by number of money-placing actions this stage    
+            betAvg = divOr0(betAvgGlobal , len(re.findall("[AbrcB]", actions))) 
+            
+            # If even one player did something, 
+            # this game stage continues
+            if not action in (NA, QUIT, KICKED):
+                someonePlayed = True
+                if debugMode:
+                    print(curPlayer.name, action, int(betAvg), int(table.totalPotValue), table.gameStage, hist.round_number)
+            
+            # Update table based on action
+            if action == CALL:
+                if curPlayer == player:
+                    table.myFunds -= betAvg
+                    table.nMyCalls += 1
+                    table.myCallSum += betAvg
+                table.totalPotValue += betAvg
+                self._stageCallCounter += 1
+                table.round_pot_value += betAvg
+            
+            # I still haven't handled all in
+            elif action in (BLIND, BET, RAISE, ALL_IN):
+                if curPlayer == player:
+                    hist.myLastBet = betAvg
+                    table.myFunds -= betAvg
+                    table.nMyRaises += 1
+                    table.myRaiseSum += betAvg
+
+                table.currentBetValue = betAvg
+                table.currentCallValue = betAvg
+                table.totalPotValue += betAvg
+                table.round_pot_value += betAvg
+                
+            elif action == CHECK:
+                if curPlayer == player:
+                    table.nMyChecks += 1
+            
+            elif action == FOLD:
+                table.other_active_players = table.other_active_players.difference({curPlayer.name})
+            elif action == KICKED:
+                table.other_active_players = table.other_active_players.difference({curPlayer.name})
+            elif action == QUIT:
+                table.other_active_players = table.other_active_players.difference({curPlayer.name})
+                
+            elif action == NA:
+                pass
+            
+            else:
+                raise ValueError("Unexpected action " + action)
+            
+            
+            # Note: These features represent the game state
+            # AT THE END OF THIS ROUND. So the first feature
+            # dictionary that is returned is after the 0th (or first) 
+            # round of the preflop
+            if curPlayer == player and action != NA:
+                features = self.featurizeTable(table, hist, player)
+                
+                if debugMode:
+                    pprint({FEATURES[i]:features[i] for i in range(len(FEATURES))})
+            
+        return (features, someonePlayed)
+    
+    
+    def featurizeRound(self):
+        pass
+    
+    def getEquity(self, table):
+        
+        tup = ((tuple(sorted(table.mycards)),),
+               tuple(sorted(table.cardsOnTable)),
+               len(table.other_active_players))
+        
+        if tup in relEquityCache.keys():
+            return relEquityCache[tup]
+        mc = MonteCarlo()
+        timeout = time.time() + 5
+        mc.run_montecarlo(DummyLogger(),
+                          [table.mycards],
+                          table.cardsOnTable,
+                          player_amount=len(table.other_active_players),
+                          ui=None,
+                          timeout=timeout,
+                          maxRuns=10000,
+                          ghost_cards="",
+                          opponent_range=0.25)
+        
+        relEquityCache[tup] = mc.equity
+        return mc.equity  
+
+    def getAbsEquity(self, table):
+        tup = (tuple(sorted(table.cardsOnTable)), len(table.other_active_players))
+        if tup in globalEquityCache.keys():
+            return globalEquityCache[tup]
+        mc = MonteCarlo()
+        timeout = time.time() + 5
+        mc.run_montecarlo(DummyLogger(),
+                          [table.cardsOnTable[:2]],
+                          table.cardsOnTable[2:],
+                          player_amount=len(table.other_active_players),
+                          ui=None,
+                          maxRuns=10000,
+                          timeout=timeout,
+                          ghost_cards="",
+                          opponent_range=0.25)
+        
+        # Cache and return
+        globalEquityCache[tup] = mc.equity
+        return mc.equity  
+    
+    
+    def newTable(self, player, h):
+        
+        # Init history (we don't really need it)
+        h.round_number = 0
+        preflop_url = "bot/decisionmaker/preflop.xlsx"  # This path is relative to the POD directory; if you're running it from elsewhere you might have to adjust it
+        h.preflop_sheet_name = "preflop.xlsx"
+        h.preflop_sheet = pd.read_excel(preflop_url, sheetname=None)
+        h.myLastBet = 0
+
+        # Init table 
+        table = DummyTable()
+        table.myPos = player.pos
+        table.gameStage = PreFlop
+        table.other_active_players = set([plyr.name for plyr in self.players if plyr != player])
+        
+        table.equity = 0
+        table.global_equity = 0
+        table.nMyRaises = 0
+        table.nMyCalls = 0
+        table.nMyChecks = 0
+        table.myRaiseSum = 0
+        table.myCallSum = 0
+
+        table.first_raiser = np.nan
+        table.second_raiser = np.nan
+        table.first_caller = np.nan
+        table.second_caller = np.nan
+        table.first_raiser_utg = np.nan
+        table.first_caller_utg = np.nan
+        table.second_raiser_utg = np.nan
+        
+        table.mycards = [ircCardToBotCard(card) for card in player.cards]
+        table.other_players = [othrPlyr for othrPlyr in self.players if othrPlyr.name != player.name]
+        table.round_pot_value = 0
+        table.currentCallValue = 0
+        table.currentBetValue = 0
+        table.relative_equity = 0
+        table.global_equity = 0
+        table.cardsOnTable = []
+        table.totalPotValue = 0
+        table.max_X = 0.86
+        table.myFunds = player.bankroll
+        
+        return table    
+
 
     def __str__(self):
         out = "IRC Game Record\n----------------------------------------\n"
@@ -104,7 +351,9 @@ class Game(object):
         
     def __repr__(self):
         return str(self)
-
+    
+    
+    
 class PlayerInGame(object):
     """
     Simple wrapper class to represent data for one player in one game.
@@ -142,6 +391,7 @@ class PlayerInGame(object):
     
     def __ne__(self, o):
         return not self == o
+    
 class Player(object):
     """Represents overall data of a player, read from a player file."""
     def __init__(self, name):
@@ -237,7 +487,7 @@ class IrcHoldemDataParser(IrcDataParser):
                     
                     self._seenPlayers.add(name)
                     if name in self._seenPlayers\
-                    or not(numpy.random.binomial(1, skipProb)):
+                    or not(np.random.binomial(1, skipProb)):
                         
                         playerPath = join(path, "pdb", playerFileName) 
                         yield self._playerFromFile(playerPath)
@@ -287,6 +537,10 @@ class IrcHoldemDataParser(IrcDataParser):
         return player
     
     def _gameFromLines(self, metadataLine, dataLine, rootPath):
+            """
+            Create a game object from all the lines that are relevant 
+            for that game.
+            """
 #         try:
             gameMetaData = splitIrcLine(metadataLine)
             gameData = splitIrcLine(dataLine)

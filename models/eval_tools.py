@@ -6,7 +6,7 @@ against each config+data combination.
 
 import sys
 import matplotlib
-matplotlib.use("agg")
+# matplotlib.use("agg") # Try this if you get any matplotlib-related errors
 import matplotlib.pyplot as plt
 from os.path import join
 from .Model import ANN, SoftmaxANN, KMeansModel, LogisticRegressionModel, \

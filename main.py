@@ -6,20 +6,13 @@ from constants import *
 from itertools import product
 import sys
 from mining.DataMiner import IrcDataMiner
-from mining.get_data import dlPokerBotData
+from mining.get_data import dlPokerBotData, mineGameData
  
 
 runBenchmark = False
 runAnn = True
 
-def mineHandData():
-    """Mines useful info out of logged poker games 
-    and stores it in readable format."""
-
-    dc = IrcDataMiner()
-    dc.mineHandData()
-
-def train():
+def trainEquityPrediction():
     """
     Runs the machine learning models from the ml directory.
     Notice that there is also a train.py script in the bot directory, but that script is different because it trains the bot to make actual decisions. This script on the other hand just creates statistical models.
@@ -80,9 +73,10 @@ def main(args):
     
     # Watchuwanna do?
     #getIrcData()
-    dlPokerBotData()
+#     dlPokerBotData()
+    mineGameData()
     #mineHandData()
-    #train()
+    #trainEquityPrediction()
     
     pass
 

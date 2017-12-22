@@ -1,8 +1,8 @@
+
+
 import matplotlib
-
-
-# matplotlib.use('Qt5Agg')
-matplotlib.use('agg')
+matplotlib.use('Qt5Agg')
+# matplotlib.use('agg')
 import pandas as pd
 import time
 import numpy as np
@@ -211,7 +211,8 @@ class ThreadManager(threading.Thread):
                 pil_image.save("log/screenshots/" + filename)
 
                 self.gui_signals.signal_status.emit("Logging data")
-
+                
+                # Log game into mongodb
                 t_log_db = threading.Thread(name='t_log_db', target=self.game_logger.write_log_file, args=[p, hist, table, decision])
                 t_log_db.daemon = True
                 t_log_db.start()
@@ -234,7 +235,7 @@ class ThreadManager(threading.Thread):
                 if table.gameStage == 'PreFlop':
                     preflop_state.update_values(table, decision.decision, hist, decision)
                 self.logger.info("=========== round end ===========")
-
+                
 
 # ==== MAIN PROGRAM =====
 

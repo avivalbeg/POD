@@ -1,4 +1,8 @@
 """
+Old implementation. Will be deleted once 
+all of its functionality is safely transferred
+into other files.
+
 This module defines a class that harvests useful data out of logged poker games.
 Currently it can only harvest and log hand data to predict player equity based 
 on game state. 
@@ -78,14 +82,9 @@ DOUBLE_FEATS = [
     FEATURES.index("table.global_equity"),
     ]
 
-class DummyTable:
-    pass
-class DummyHistory:
-    pass
-
 class IrcDataMiner:
     
-    def __init__(self, ircDataPath=IRC_DATA_PATH, handDataPath=HAND_DATA_PATH, debugMode=False):
+    def __init__(self, ircDataPath=IRC_DATA_PATH, handDataPath=HAND_DATA_PATH,gameDataPath=GAME_VECTORS_PATH, debugMode=False):
         self._debugMode = debugMode
         self._ircParser = IrcHoldemDataParser(ircDataPath)
         # Counters that get set back to 0 every stage        
@@ -96,9 +95,38 @@ class IrcDataMiner:
             os.mkdir(handDataPath)
         
         self._handDataPath = handDataPath
+        self._gameDataPath = handDataPath
         self._fileCounter = 1
         self._relEquityCache = {}
         self._globalEquityCache = {}
+    
+    def mineGameData(self, debugMode=False):
+        self._debugMode = debugMode
+        print("Creating file #%d" % self._fileCounter)
+        open(join(self._gameDataPath, "%d.csv" % self._fileCounter), "w").close()
+        i = 0
+        self._outFile = open(join(self._gameDataPath, "%d.txt" % self._fileCounter), "a")
+        for game in self._ircParser.iterGames():
+            i += 1
+            # Choose game and go over all players with cards            
+            game = self._ircParser.nextGame()
+            players = [player for player in game.players if player.cards]
+            for player in players:
+                for vector in game.roundVectors(player):
+                    print(">>", vector)
+                    quit()
+                    self._outFile.write("\t".join([str(x) for x in vector]))
+                
+            # Create a new file
+            if i % 500 == 0:
+                self._outFile.close()
+                self._fileCounter += 1
+                print("Creating file #%d" % self._fileCounter)
+                open(join(self._gameDataPath, "%d.txt" % self._fileCounter), "w").close()
+                self._outFile = open(join(self._gameDataPath, "%d.csv" % self._fileCounter), "a")
+
+        self._outFile.close()        
+        
         
     def mineHandData(self, debugMode=False):
         """
@@ -284,7 +312,7 @@ class IrcDataMiner:
             return self._relEquityCache[tup]
         mc = MonteCarlo()
         timeout = time.time() + 5
-        mc.run_montecarlo(logging,
+        mc.run_montecarlo(DummyLogger(),
                           [table.mycards],
                           table.cardsOnTable,
                           player_amount=len(table.other_active_players),

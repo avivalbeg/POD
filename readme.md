@@ -1,8 +1,6 @@
 
 
-
-
-##### Machine Learning
+###### Machine Learning
 
 - Compile a list of game features.
 - Featurize past games
@@ -11,6 +9,12 @@
 - Figure out how to save a log of all games our modified bot will play, similarly to the way it is currently done in the bot, only in our own database
 - Update our learned strategy every time the bot plays a game
 - Train bot also on IRC data
+
+#### Models
+
+- Neural network on game features to predict best decision
+- Reinforcement learning - part of neural network?
+- Genetic algorithm - find best strategy
 
 ## Model idea for reinforcement learning from individual IRC players:
 
@@ -25,9 +29,9 @@ Reward: figure out how to calculate which parts of the strategy took us farther 
 Problem: only limited to players that showed their cards.
 
 
-##### Site Deception
+###### Site Deception
 
 1. Imitate human mouse.
 2. Make emotional decisions sometimes.
-
+3. Remember to disable collusion!
 
