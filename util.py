@@ -1,21 +1,62 @@
 # -*- coding: utf-8 -*-
 import re
 import sys
+import numpy as np
+from constants import MONEY_FEATURES, NAN_NUM, GameStages
+from pandas.util.testing import isiterable
+from pprint import pprint
+import ntpath
+from os.path import splitext
+import eval7
+from PIL import Image
+from pytesseract.pytesseract import image_to_string
+import os
+
 
 class DummyLogger:
     def info(self, *args):
         pass
 
-class DummyTable:
-    pass
+def oneHotEncCat(cat, cats):
+    """One-hot encode a category from a list of possible categories."""
+    ind = cats.index(cat)
+    vec = np.zeros(len(cats))
+    vec[ind] = 1
+    return vec
 
-class DummyHistory:
-    pass
+      
+def pad(matrix, n, nDims):
+    """Pad a 2D matrix with NaN vectors up to certain size."""
+    for _ in range(max([0,n-len(matrix)])):
+        emptyRound = np.empty(nDims)
+        emptyRound[:]=NAN_NUM # Fill it with nothing
+        matrix = np.vstack((matrix,emptyRound))
+    return matrix
+
+def emptyDir(path):
+    for the_file in os.listdir(path):
+        file_path = os.path.join(path, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
 
 
-def initEquityCaches():
-    relEquityCache = {}
-    globalEquityCache = {}
+def eval7CardFormat(card):
+    d,s=card
+    return d.upper()+s.lower()
+
+def getRank(hand):
+    hand = [eval7.Card(eval7CardFormat(c)) for c in hand]
+    return eval7.evaluate(hand)
+
+def getHandType(hand):
+    return eval7.hand_type(getRank(hand))
+
+def getEquity(hand):
+    return getRank(hand)/135004160
+    
 
 
 def encodeRec(x):
@@ -59,8 +100,21 @@ def tableRowFromList(lst, cellSize=10, sep="|"):
         + spaces + sep
     return out
 
+def readVocab(path):
+    """Reads a word list off a file where each line 
+    is a word"""
+    vocab = set()
+    with open(path) as f:
+        for line in f:
+            vocab.add(line.strip())
+    return vocab
 
-
+def writeVocab(vocab, path):
+    """Writes a set into a file line by line."""
+    with open(path,"w") as f:
+        for x in vocab:
+            print(x,file=f)
+        
 def divOr0(x,y):
     if y!=0:
         return float(x)/float(y)
@@ -75,4 +129,86 @@ def getOrDefault(obj, item, dflt):
     
 def ircCardToBotCard(card):
     return card[0] + card[1].upper()
+
+def findCards(string):
+    return re.findall("-?[a-zA-Z\d][a-zA-Z\d]", str(string))
+
+def isNumStr(x):
+    return type(x)==type("") and re.match("-?\d*((\.\d*)|\d+)", x)
+
+def makeFeatureVector(dic,n=0,whitelist=[],blacklist=[],strDic={},normFeatures=[],norm=1.):
+    """Turn an object into a feature vector."""
+    
+    if not n:
+        n=len(dic)
+    vector = np.zeros(n)
+    pprint(dic.keys())
+    if norm==0:
+        raise ValueError("Cannot normalize with respect to 0.")
+    for i,(feature,value) in enumerate(sorted(dic.items())):
+
+        if feature in blacklist:
+            continue
+        
+        
+        value = featurize(value)
+        
+
+        if feature in normFeatures:
+            value /= norm
+            assert value<=1
+        
+        if isiterable(value):
+            raise ValueError("Cannot use iterable as feature value")
+        
+        vector[i] = value
+    return vector
+
+def featurize(value,strDic={}):
+    """Turn some value into a numerical feature."""
+    
+    if isNumStr(value):
+            return eval(value)
+        
+    if type(value)==type(""):
+            if value in ("nan","NaN","None"):
+                return NAN_NUM
+            elif value in ("True","False"):
+                return int(eval(value))
+            elif not value:
+                return 0
+            else:
+                return strDic[value]
+            
+    if type(value) in (type(np.nan),type(None)):
+        return NAN_NUM
+    
+    if type(value) == type(False):
+        return int(value)
+    
+    return value
+def baseName(filePath):
+    """Get the base name of a file path."""
+    return splitext(ntpath.basename(filePath))[0]
+
+
+def cleanMdbDic(dic):
+    
+    cleaned = {}
+    for field, val in dic.items():
+        
+        if type(val) == type(b""):
+            val = val.decode(sys.stdout.encoding)
+        
+        if val == "False": val = 0
+        if val == "True": val = 1
+        if val == "nan" or not val: val = NAN_NUM
+        if val in GameStages: val = GameStages.index(val)
+        
+        if field == "other_players": val = str(val) 
+        if field == "PlayerCardList": val = " ".join(eval(val))
+        if field == "PlayerCardList_and_others": val = " ".join(re.findall("[a-zA-Z\d]+", val))
+        cleaned[field] = [val]
+        
+    return cleaned    
 
