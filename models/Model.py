@@ -379,18 +379,27 @@ class TripleLayerSoftmaxANN(SoftmaxANN):
         self.train_step = tf.train.GradientDescentOptimizer(self._config.lr).minimize(self.cost)
 
 
-class LstmClassifier(TFModel, ANN):
+class KerasLstmClassifier(ANN):
     def __init__(self, config):
-    
-        num_layers = config['num_layers']
-        hidden_size = config['hidden_size']
-        max_grad_norm = config['max_grad_norm']
-        self.batch_size = config['batch_size']
-        a,b = config['cellShape']
-        learning_rate = config['learning_rate']
-        num_classes = config['num_classes']
-        self.input = tf.placeholder(tf.float32, [None, a,b], name='input')
-        self.labels = tf.placeholder(tf.int64, [None,a,1], name='labels')
+        pass
+class TfLstmClassifier(TFModel, ANN):
+    def __init__(self, config):
+        data = data
+
+
+        # TODO: Make sure configs have these fields
+        num_layers = config.nLayers
+        hidden_size = config.hiddenSize
+        max_grad_norm = config.maxGradNorm
+        nDims = config.nFeatures
+
+        self.batch_size = config.batchSize
+
+
+        learning_rate = config.lr
+        num_classes = config.nClasses
+        self.input = tf.placeholder(tf.float32, [None, nDims], name='input')
+        self.labels = tf.placeholder(tf.int64, [None,nDims], name='labels')
         self.keep_prob = tf.placeholder("float", name='Drop_out_keep_prob')
         with tf.name_scope("LSTM_setup") as scope:
             def single_cell():

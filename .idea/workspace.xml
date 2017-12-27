@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ae023711-1ece-45fc-9c39-7168c8dde47f" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/models/lstm.py" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mining/bot/decisionmaker/preflop.xlsx" afterPath="$PROJECT_DIR$/mining/bot/decisionmaker/preflop.xlsx" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bot/PokerBot.py" afterPath="$PROJECT_DIR$/bot/PokerBot.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mining/get_data.py" afterPath="$PROJECT_DIR$/mining/get_data.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/Model.py" afterPath="$PROJECT_DIR$/models/Model.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/stats.py" afterPath="$PROJECT_DIR$/models/stats.py" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1116">
+              <caret line="252" column="0" lean-forward="false" selection-start-line="252" selection-start-column="0" selection-end-line="252" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="stats.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/stats.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="991">
+              <caret line="229" column="23" lean-forward="false" selection-start-line="229" selection-start-column="23" selection-end-line="229" selection-end-column="23" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PokerBot.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/bot/PokerBot.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="250">
+              <caret line="20" column="5" lean-forward="false" selection-start-line="20" selection-start-column="5" selection-end-line="20" selection-end-column="5" />
+              <folding>
+                <marker date="1514379452142" expanded="true" signature="0:649" ph="import ..." />
+                <marker date="1514379452142" expanded="true" signature="1039:1240" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="1350:1954" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="1976:2070" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="2087:13834" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="2145:2400" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="2447:3859" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="2633:2779" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="2881:3859" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="3022:3103" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="3166:3652" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="3697:3859" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="3895:3908" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="3954:6359" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="4141:4230" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="4299:4340" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="4587:4856" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="4662:4856" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="4929:5469" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="5546:5709" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="6419:7674" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="6493:6575" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="7738:7769" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="7834:7998" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="8055:8674" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="8241:8644" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="8708:9288" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="8852:9260" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="9328:10269" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="9974:10235" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="10055:10235" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="10072:10194" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="10339:10917" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="10960:12031" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="10969:11111" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+                <marker date="1514379452142" expanded="true" signature="11137:11667" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="11764:12000" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="11799:12000" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="11888:12000" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="12105:12823" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="12723:12776" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="12891:13046" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="13086:13667" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="13095:13258" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+                <marker date="1514379452142" expanded="true" signature="13312:13667" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="13387:13667" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="13526:13667" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="13713:13834" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="13757:13834" ph="..." />
+                <marker date="1514379452142" expanded="true" signature="13856:13897" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mouse_mover.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/bot/tools/mouse_mover.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#14#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="stats.py" pinned="false" current-in-tab="false">
+        <entry file="file://C:/Python36/Lib/site-packages/scipy/stats/stats.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-161">
+              <caret line="4574" column="4" lean-forward="false" selection-start-line="4574" selection-start-column="4" selection-end-line="4574" selection-end-column="4" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="get_data.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mining/get_data.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="91">
+              <caret line="152" column="32" lean-forward="false" selection-start-line="152" selection-start-column="32" selection-end-line="152" selection-end-column="32" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Model.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/Model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="391">
+              <caret line="383" column="12" lean-forward="false" selection-start-line="383" selection-start-column="12" selection-end-line="383" selection-end-column="12" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/main.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-975">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="eval_tools.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/eval_tools.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>max_grad_norm</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/constants.py" />
+        <option value="$PROJECT_DIR$/mining/get_data.py" />
+        <option value="$PROJECT_DIR$/models/Model.py" />
+        <option value="$PROJECT_DIR$/models/stats.py" />
+        <option value="$PROJECT_DIR$/bot/PokerBot.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1400" />
+    <option name="height" value="1000" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="POD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="POD" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="POD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="POD" type="462c0819:PsiDirectoryNode" />
+              <item name="bot" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="POD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="POD" type="462c0819:PsiDirectoryNode" />
+              <item name="bot" type="462c0819:PsiDirectoryNode" />
+              <item name="tools" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="POD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="POD" type="462c0819:PsiDirectoryNode" />
+              <item name="mining" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="POD" type="b2602c69:ProjectViewProjectNode" />
+              <item name="POD" type="462c0819:PsiDirectoryNode" />
+              <item name="models" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ae023711-1ece-45fc-9c39-7168c8dde47f" name="Default" comment="" />
+      <created>1514370387824</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1514370387824</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="6" column="36" lean-forward="false" selection-start-line="6" selection-start-column="36" selection-end-line="6" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mining/get_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="91">
+          <caret line="152" column="32" lean-forward="false" selection-start-line="152" selection-start-column="32" selection-end-line="152" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/eval_tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-975">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/Model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="383" column="12" lean-forward="false" selection-start-line="383" selection-start-column="12" selection-end-line="383" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1116">
+          <caret line="252" column="0" lean-forward="false" selection-start-line="252" selection-start-column="0" selection-end-line="252" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python36/Lib/site-packages/scipy/stats/stats.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-161">
+          <caret line="4574" column="4" lean-forward="false" selection-start-line="4574" selection-start-column="4" selection-end-line="4574" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/stats.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="991">
+          <caret line="229" column="23" lean-forward="false" selection-start-line="229" selection-start-column="23" selection-end-line="229" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bot/tools/mouse_mover.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bot/PokerBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="250">
+          <caret line="20" column="5" lean-forward="false" selection-start-line="20" selection-start-column="5" selection-end-line="20" selection-end-column="5" />
+          <folding>
+            <marker date="1514379452142" expanded="true" signature="0:649" ph="import ..." />
+            <marker date="1514379452142" expanded="true" signature="1039:1240" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="1350:1954" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="1976:2070" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="2087:13834" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="2145:2400" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="2447:3859" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="2633:2779" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="2881:3859" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="3022:3103" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="3166:3652" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="3697:3859" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="3895:3908" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="3954:6359" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="4141:4230" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="4299:4340" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="4587:4856" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="4662:4856" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="4929:5469" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="5546:5709" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="6419:7674" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="6493:6575" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="7738:7769" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="7834:7998" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="8055:8674" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="8241:8644" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="8708:9288" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="8852:9260" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="9328:10269" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="9974:10235" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="10055:10235" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="10072:10194" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="10339:10917" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="10960:12031" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="10969:11111" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1514379452142" expanded="true" signature="11137:11667" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="11764:12000" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="11799:12000" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="11888:12000" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="12105:12823" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="12723:12776" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="12891:13046" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="13086:13667" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="13095:13258" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1514379452142" expanded="true" signature="13312:13667" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="13387:13667" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="13526:13667" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="13713:13834" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="13757:13834" ph="..." />
+            <marker date="1514379452142" expanded="true" signature="13856:13897" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

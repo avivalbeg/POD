@@ -150,7 +150,7 @@ def dlPokerBotData():
 
 
 def mineGameData(ircDataPath=IRC_DATA_PATH, 
-                 gameDataPath=GAME_VECTORS_PATH, 
+                 gameDataPath=IRC_GAME_VECTORS_PATH,
                  debugMode=False):
     """Collect and store vector representation of 
     game rounds from the IRC dataset from the 

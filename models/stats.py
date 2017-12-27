@@ -234,21 +234,20 @@ def evalFairness(cardDist):
     print("Critical value for chi-sq test with",len(cardDist)-1,"degrees of freedom:")
     print(5.22603)
     
+if __name__ == '__main__':
 
     
-    
-evalFairness(scrapedDist)
+    evalFairness(scrapedDist)
 
 
-quit()
-n = sum(list(ppDistTable.values()))
-keys = list(ppDistTable.keys())
-fairs = [var(list(makeSimDist(n, keys).values())) for _ in range(1000)]
-evalFairness(ppDistTable)
-evalFairness(ppDist)
-# evalFairness(psDist)
-    
-    
-    
+    quit()
+    n = sum(list(ppDistTable.values()))
+    keys = list(ppDistTable.keys())
+    fairs = [var(list(makeSimDist(n, keys).values())) for _ in range(1000)]
+    evalFairness(ppDistTable)
+    evalFairness(ppDist)
+
+
+
     
                 

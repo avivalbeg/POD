@@ -1,4 +1,8 @@
-import os, shutil
+
+
+import os, shutil, sys
+sys.path=["C:/Users/Omer ASUS/git/POD"]+sys.path
+
 import time, threading
 import ntpath
 from os.path import splitext, join, exists
@@ -14,7 +18,7 @@ from pprint import pprint
 from pandas.core.frame import DataFrame
 import pandas
 from collections import OrderedDict
-from bot.tools.mouse_mover import MouseMoverTableBased
+from tools.mouse_mover import MouseMoverTableBased
 from util import DummyLogger, getRank, getHandType, getEquity, emptyDir
 import eval7
 from pytesseract.pytesseract import image_to_string

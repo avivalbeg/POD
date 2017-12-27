@@ -1,4 +1,8 @@
 
+import sys,os
+sys.path=["C:/Users/Omer ASUS/git/POD"]+sys.path
+
+import unittest
 from unittest import TestCase
 from PokerBot import PokerBot
 
@@ -28,3 +32,5 @@ class TestBot(TestCase):
         bot.start("savedScreenshots/test4.png")
         self.assertEqual(set(bot.getGameState()["tableCards"][0]), {'9H','4H','QD','7S'})
         
+if __name__ == '__main__':
+    unittest.main()
