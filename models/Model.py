@@ -512,8 +512,7 @@ class LstmClassifier(ANN):
         self._model.add(lstmLayer(False))
 
         self._model.add(Dense(1, activation=config.activation))  # TODO: Modify output shape
-        self._model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-
+        self._model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']) #TODO CATEGORICAL binary good?
     def train(self, X, y, verbose=1):
         self._model.fit(X, y, epochs=self._config.nEpochs,
                         batch_size=self._config.batchSize,
