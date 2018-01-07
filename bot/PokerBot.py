@@ -1,6 +1,6 @@
 
 
-import os, shutil, sys
+import os, sys
 sys.path=["C:/Users/Omer ASUS/git/POD"]+sys.path
 
 import time, threading
@@ -18,7 +18,7 @@ from pprint import pprint
 from pandas.core.frame import DataFrame
 import pandas
 from collections import OrderedDict
-from tools.mouse_mover import MouseMoverTableBased
+from bot.tools.mouse_mover import MouseMoverTableBased
 from util import DummyLogger, getRank, getHandType, getEquity, emptyDir
 import eval7
 from pytesseract.pytesseract import image_to_string
@@ -95,6 +95,26 @@ GAME_OBJECTS = [
     'myEquity',
     'myRank',
     'myHandType',
+    ]
+
+PLAYER_FIELDS = [
+
+    'pos',
+    'cards',
+    'funds',
+    'lastBet',
+    'lastCall',
+    'lastAction',
+    'raiseSum',
+    'callSum',
+    'nRaises',
+    'nCalls',
+    'nChecks',
+    'equity',
+    'rank',
+    'handType'
+
+    
     ]
 
 def inputThread(l):
@@ -226,7 +246,7 @@ class PokerBot:
         elif getattr(self, CHECK_BUTTON):
             return "Imback"
         elif getattr(self, CALL_BUTTON)\
-        and ((self._gameState["currentCallValue"][0] <= 300 \
+        and (((self._gameState["currentCallValue"][0] <= 300 \
               or (self._gameState["currentCallValue"][0] <= 800\
                   and self._gameState["gameStage"][0] == 3)\
               or (self._gameState["currentCallValue"][0] <= 400\
@@ -237,7 +257,7 @@ class PokerBot:
             and ((self._gameState["gameStage"][0] == 0 \
                   and re.findall("[KQJA]", str(self._gameState["myCards"][0])))\
                  or (self._gameState["myHandType"][0] != "High Card"\
-                 and self._gameState["myHandType"][0] == "High Card"))):
+                 and self._gameState["myHandType"][0] == "High Card")))):
             return "Call"
         else:
             return "Fold"

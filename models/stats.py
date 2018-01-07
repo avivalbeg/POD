@@ -4,6 +4,9 @@ Unless noted otherwise, the names of the method correspond to the statistical fu
 
 I excessively convert numbers into floats in order to prevent any chance of 
 accidentally dividing by an integer, which could create a difficult bug to detect.
+
+This is written using python lists instead of numpy arrays, which is not
+the way to go. This should be changed.
 """
 
 
@@ -147,6 +150,12 @@ class LinearModel(RegressionModel):
         self.margin_of_error_intercept = lambda critical_value: critical_value * self.slope_se
     
 
+def chisq_uniform(X):
+    """Chi square test for uniform distribution."""
+    df = len(X)-1
+    E = mean(X)
+    return sum([(x-E)**2/E for x in X])
+
 
 T=10
 J=11
@@ -166,18 +175,25 @@ with open("../bot/cardsLog.txt") as f:
             denom = card[0]
             scrapedDist[denom]+=1
 
-def makesimDist(n, keys):
+def simulateDist(n, keys):
     dist=defaultdict(lambda:0)
     for _ in range(int(n)):
         dist[choice(keys)]+=1
     return dict(dist)
 
+def readSimDist(n, keys):
+    dist = defaultdict(lambda :0)
+    with open("../data/cardSim.txt") as f:
+        for _ in range(int(n)):
+            cardN = eval(f.readline().split(" ")[0].strip())
+            dist[keys[int((cardN-(cardN%4))/4)]]+=1
+    return dict(dist)
+
 def evalFairness(cardDist):
     data1 = [(eval(card[0]),count) for card,count in cardDist.items()]
     total = sum([count for denom, count in data1])
-    
-    simDist = makesimDist(total, list(cardDist.keys()))
-    
+    simDist1 = simulateDist(total, list(cardDist.keys()))
+    simDist = readSimDist(10000, list(cardDist.keys()))
     data2 = [(eval(card[0]),count) for card,count in simDist.items()]
 
     reg1 = LinearModel([denom for denom,count in data1],[count for denom,count in data1])
@@ -223,29 +239,21 @@ def evalFairness(cardDist):
     print()
     print("Chi-sq test:")
     div,p_value = chisquare(list(cardDist.values()))
+    print("my chi-sq:", chisq_uniform(list(cardDist.values())))
     print("chi-sq:", div)
     print("p=",p,sep="")
     print()
     print("Chi-sq test for simulated distribution:")
     div,p_value = chisquare(list(simDist.values()))
     print("chi-sq:", div)
+    print("my chi-sq:", chisq_uniform(list(simDist.values())))
     print("p=",p,sep="")
     print()
     print("Critical value for chi-sq test with",len(cardDist)-1,"degrees of freedom:")
     print(5.22603)
     
 if __name__ == '__main__':
-
-    
     evalFairness(scrapedDist)
-
-
-    quit()
-    n = sum(list(ppDistTable.values()))
-    keys = list(ppDistTable.keys())
-    fairs = [var(list(makeSimDist(n, keys).values())) for _ in range(1000)]
-    evalFairness(ppDistTable)
-    evalFairness(ppDist)
 
 
 

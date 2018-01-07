@@ -12,9 +12,11 @@
 
 #### Models
 
-- Neural network on game features to predict best decision
-- Reinforcement learning - part of neural network?
-- Genetic algorithm - find best strategy
+- Use LSTM to classify call and raise decisions as whether they lead to winning or losing
+- Learn how to bluff: learn behavior of players that won without showdown, and learn how to
+not act like players who reached showdown and had nothing in their hand.
+- Classify  players that had good hands and predict how they behave.
+- Predict given a player's actions whether they are likely to quit or whether they have a good hand
 
 ## Model idea for reinforcement learning from individual IRC players:
 
@@ -28,6 +30,18 @@ Reward: figure out how to calculate which parts of the strategy took us farther 
 
 Problem: only limited to players that showed their cards.
 
+To run gcp job: 
+
+	Locally:
+	# From ..
+	gcloud ml-engine local train --module-name POD.gcp_task --package-path POD/
+	
+	Cloudly:	
+	# From ..
+	gcloud ml-engine jobs submit training peanut_butter_`date +%s` --job-dir=gs://omerkorat2/pb --module-name POD.gcp_task --package-path POD/ --region us-central1
+
+    Stream log:
+    gcloud ml-engine jobs stream-logs peanut_butter_1514754990
 
 ###### Site Deception
 

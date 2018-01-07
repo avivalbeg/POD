@@ -9,6 +9,8 @@ import matplotlib
 # matplotlib.use("agg") # Try this if you get any matplotlib-related errors
 import matplotlib.pyplot as plt
 from os.path import join
+
+
 from .Model import ANN, SoftmaxANN, KMeansModel, LogisticRegressionModel, \
     LinearRegressionModel, KNeighborsModel, SVMModel, \
     DoubleLayerSoftmaxANN, SKLearnModel, TFModel, PolynomialRegressionModel
@@ -29,6 +31,7 @@ from sklearn import datasets
 from copy import copy, deepcopy
 import itertools
 
+
 class Config(object):
     """Holds ANN hyperparams and data information.
 
@@ -36,8 +39,9 @@ class Config(object):
     information parameters. ANN objects are passed a Config() object at
     instantiation.
     """
+
     def __init__(self, data, reg, batchSize, nEpochs, lr):
-        self.data=data
+        self.data = data
         self.reg = reg
         self.nFeatures = data.nFeatures()
         self.nClasses = data.nClasses()
@@ -45,30 +49,30 @@ class Config(object):
         self.batchSize = batchSize
         self.nEpochs = nEpochs
         self.lr = lr
-        
-        
+        self.inputShape = data.trainX.shape[1:]
+
+
+    strBlacklist = ["data"]
     def __str__(self):
         return "\n".join([
-                        "reg: " +str(self.reg), 
-                       "nSamples: " +str(self.nSamples),
-                       "nFeats: " + str(self.nFeatures),
-                       "nClasses: " + str(self.nClasses),
-                       "batchSize: " + str(self.batchSize),
-                       "nEpochs: " + str(self.nEpochs),
-                       "lr: " + str(self.lr),
-                       ])
-        
+            k + " : " + str(v) for k, v in vars(self).items() if k not in self.strBlacklist
+        ])
+
     def __repr__(self):
         return "-".join([
-                        "reg:" +str(self.reg), 
-                       "nSamples:" +str(self.nSamples),
-                       "nFeats:" + str(self.nFeatures),
-                       "nClasses:" + str(self.nClasses),
-                       "batchSize:" + str(self.batchSize),
-                       "nEpochs:" + str(self.nEpochs),
-                       "lr:" + str(self.lr),
-                       ])
-    
+            k + ":" + str(v) for k, v in vars(self).items() if k not in self.strBlacklist
+        ])
+
+
+class AnnConfig(Config):
+    def __init__(self, data, reg, batchSize, nEpochs, lr, hidSize,
+                 nLayers, dropout, activation):
+        Config.__init__(self, data, reg, batchSize, nEpochs, lr)
+        self.hidSize = hidSize
+        self.nLayers = nLayers
+        self.dropout = dropout
+        self.activation = activation
+
 
 def evaluateModel(modelClass, configs, debug=False):
     """Tries instantiates the given class with
@@ -89,18 +93,18 @@ def evaluateModel(modelClass, configs, debug=False):
     else:
         raise NotImplementedError
     # Return results sorted dev by accuracy
-    return sorted(results.items(), key=lambda x:x[1][0])
+    return sorted(results.items(), key=lambda x: x[1][0])
+
 
 def evaluateSKLearnModel(modelClass, configs, debug=False):
-    
     if debug:
         printdb("Testing " + modelClass.__name__)
 
     results = {}
     for config in configs:
-        
+
         data = config.data
-        
+
         if debug:
             printdb("Params:")
             printdb(str(config))
@@ -108,7 +112,7 @@ def evaluateSKLearnModel(modelClass, configs, debug=False):
         model.train(data.trainX, data.train_y)
         devAcc = model.eval(data.devX, data.dev_y)
         testAcc = model.eval(data.testX, data.test_y)
-        
+
         if debug:
             printdb("Dev loss: " + str(devAcc))
             printdb("Test loss: " + str(testAcc))
@@ -117,20 +121,20 @@ def evaluateSKLearnModel(modelClass, configs, debug=False):
 
     return results
 
+
 def evaluateTFModel(modelClass, configs, debug=False):
-    
     results = {}
     for config in configs:
         if debug:
             print("Training %s with parameters:\n %s" % (modelClass.__name__, str(config)))
-        
+
         # Creating a copy of the data that is one hot encoded (if needed)
         thisData = deepcopy(config.data)
         if issubclass(modelClass, ANN):
             thisData.encodeOneHot(False)
-    
+
         model = modelClass(config)
-           
+
         sess = tf.InteractiveSession()
         # tf.global_variables_initializer().run() # Try this if you get an error message
         sess.run(tf.global_variables_initializer())
@@ -138,14 +142,15 @@ def evaluateTFModel(modelClass, configs, debug=False):
         model.train(thisData.iterTraining(config.batchSize), sess)
         devAcc = model.eval(thisData.devX, thisData.dev_y, sess)
         testAcc = model.eval(thisData.testX, thisData.test_y, sess)
-    
+
         if debug:
             printdb("Dev acc: " + str(devAcc))
             printdb("Test acc: " + str(testAcc))
-        
+
         results[config] = (devAcc, testAcc)
         sess.close()
     return results
+
 
 def compareModels(modelClasses, configs, debug=False, plotPath=None, plotParams=[]):
     """
@@ -166,7 +171,7 @@ def compareModels(modelClasses, configs, debug=False, plotPath=None, plotParams=
     for modelClass in modelClasses:
         # List of tuples (config, (dev_accuracy, test_accuracy))
         results = evaluateModel(modelClass, configs, debug)
-        accs[modelClass.__name__] = (results[-1][1][1], results[-1][0]) 
+        accs[modelClass.__name__] = (results[-1][1][1], results[-1][0])
 
         # Plot if asked for it
         if plotPath:
@@ -180,16 +185,14 @@ def compareModels(modelClasses, configs, debug=False, plotPath=None, plotParams=
                     testY.append(res[1][1])
 
                 plt.scatter(X, devY)
-                plt.savefig(join(plotPath, modelClass.__name__ + "-" + plotParam+"-dev"))
-                plt.close() 
+                plt.savefig(join(plotPath, modelClass.__name__ + "-" + plotParam + "-dev"))
+                plt.close()
 
                 plt.scatter(X, testY)
-                plt.savefig(join(plotPath, modelClass.__name__ + "-" + plotParam+"-test"))
-                plt.close() 
-    
-    pprint (accs)
-    
-    
+                plt.savefig(join(plotPath, modelClass.__name__ + "-" + plotParam + "-test"))
+                plt.close()
+
+    pprint(accs)
 
 # @TODO: 
 # - Make RandomDataLoader's labels follow some distributions
@@ -197,4 +200,3 @@ def compareModels(modelClasses, configs, debug=False, plotPath=None, plotParams=
 # - implement regularization for all models 
 # - Save and recover trained models 
 # - Fix MnistDataLoader and make sure that all DataLoaders are generalized
-
