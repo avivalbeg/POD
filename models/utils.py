@@ -7,6 +7,14 @@ import tensorflow as tf
 from pandas.core.frame import DataFrame
 
 
+def sample_batch(X_train, y_train, batch_size):
+    """ Function to sample a batch for training"""
+    N, data_len, nDims = X_train.shape
+    ind_N = np.random.choice(N, batch_size, replace=True)
+    X_batch = X_train[ind_N]
+    y_batch = y_train[ind_N]
+    return X_batch, y_batch
+
 def idEncode(it):
     """Encodes all elements of iterable it with unique ids 
     starting from 0. Returns a numpy array."""
@@ -40,9 +48,9 @@ def feature_normalize(dataset):
 def append_bias_reshape(features, labels):
     n_training_samples = features.shape[0]
     n_dim = features.shape[1]
-    f = np.reshape(np.c_[np.ones(n_training_samples), features], [n_training_samples, n_dim + 1])
+    encodeRec = np.reshape(np.c_[np.ones(n_training_samples), features], [n_training_samples, n_dim + 1])
     l = np.reshape(labels, [n_training_samples, 1])
-    return f, l
+    return encodeRec, l
 
 def printdb(x=""):
     print("% " + str(x))

@@ -9,6 +9,8 @@
     - write demo script
     - clean imports
     - k-fold cross validation
+    - validation for ANNs
+    - Save models
 """
 
 from eval_tools import *
