@@ -161,7 +161,7 @@ def main(args):
     # buildIrcVectors(debug=True)
     #     mineHandData()
     #     train1(IrcDataLoader())
-    trainLstm(DeepMindPokerDataLoader(2000))
+    trainLstm(DeepMindPokerDataLoader(100))
 
     pass
 
