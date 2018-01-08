@@ -483,20 +483,11 @@ class LstmClassifier(ANN):
         self._config = config
 
         self._model = Sequential()
-        # self._model.add(Dense(config.hidSize, input_shape=config.inputShape,
-        #                       kernel_regularizer=l2(config.reg),
-        #                       activity_regularizer=l1(config.reg)
-        #                       ))
-        self._model.add(LSTM(config.hidSize,
-                             input_shape=config.inputShape,
-                             kernel_regularizer=l2(config.reg),
-                             recurrent_regularizer=l2(config.reg),
-                             bias_regularizer=l1(config.reg),
-                             activity_regularizer=l1(config.reg),
+        self._model.add(Dense(config.hidSize, input_shape=config.inputShape,
+                              kernel_regularizer=l2(config.reg),
+                              activity_regularizer=l1(config.reg)
+                              ))
 
-                             dropout=config.dropout,
-                             recurrent_dropout=0.,  # vary?
-                             return_sequences=True))
         lstmLayer = lambda retSeqs: LSTM(config.hidSize,
                                  kernel_regularizer=l2(config.reg),
                                  recurrent_regularizer=l2(config.reg),
@@ -512,7 +503,8 @@ class LstmClassifier(ANN):
         self._model.add(lstmLayer(False))
 
         self._model.add(Dense(1, activation=config.activation))  # TODO: Modify output shape
-        self._model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']) #TODO CATEGORICAL binary good?
+        self._model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
     def train(self, X, y, verbose=1):
         self._model.fit(X, y, epochs=self._config.nEpochs,
                         batch_size=self._config.batchSize,
@@ -522,7 +514,7 @@ class LstmClassifier(ANN):
         scores = self._model.evaluate(X, y, verbose=0)
         return scores[1]
 
-    def trainGraded(self, step=5, verbose=1):
+    def trainGraded(self, step=1, verbose=1):
         """Finds the ideal #epochs for this model."""
 
         trainX, train_y, testX, test_y = self._config.data.trainX, self._config.data.train_y, self._config.data.testX, self._config.data.test_y
@@ -531,7 +523,7 @@ class LstmClassifier(ANN):
             self._model.fit(trainX, train_y, epochs=step,
                             batch_size=self._config.batchSize,
                             verbose=verbose)
-            _, acc = self._model.evaluate(testX, test_y, verbose=0)
+            _, acc = self._model.evaluate(testX, test_y, verbose=verbose)
             print("Accuracy:", acc)
             if acc > maxAcc:
                 maxAcc, nEpochs = acc, i * step

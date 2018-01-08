@@ -139,7 +139,7 @@ def trainLstm(data):
         print("Trying config:")
         print([config])
         print()
-        acc, nEpochs = model.trainGraded(verbose=0)
+        acc, nEpochs = model.trainGraded(verbose=1)
         print()
         print("Achieved accuracy of %s within %s epochs" % (str(acc),
                                                              nEpochs))
@@ -161,7 +161,7 @@ def main(args):
     # buildIrcVectors(debug=True)
     #     mineHandData()
     #     train1(IrcDataLoader())
-    trainLstm(DeepMindPokerDataLoader(100))
+    trainLstm(DeepMindPokerDataLoader(1000))
 
     pass
 
