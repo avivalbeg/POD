@@ -283,6 +283,10 @@ class DeepMindPokerDataLoader(DataLoader):
 
 
 class IrcHandDataLoader(DataLoader):
+    """A class for loading the hand rank data created and saved by the
+    'buildIrcHandVectors' function. Used to train an LSTM that predicts
+    hand strength. The number of hand strenght buckets used is defined in
+    the constant N_HAND_CLASSES."""
     def __init__(self):
         # Load all game matrices from all files
         arr = None
@@ -328,9 +332,9 @@ class IrcHandDataLoader(DataLoader):
 
 def buildIrcHandVectors(ircDataPath=IRC_DATA_PATH,
                         outPath=HAND_DATA_PATH,
-                        debug=False):
-    """Featurize an IRC games and save them as vectors.
-    Work in progress."""
+                        debug=False,
+                        maxIterations = 600):
+    """Iterate features of IRC games and save them as vectors."""
     parser = IrcHoldemDataParser(ircDataPath)
 
     fileCounter = 1
@@ -344,11 +348,13 @@ def buildIrcHandVectors(ircDataPath=IRC_DATA_PATH,
             continue
 
         i += 1
-        if i > 600:
+        # Stop here
+        if i > maxIterations:
             outFile.close()
             os.remove(path)
             break
 
+        # Save data periodically
         if i % 200 == 0:
             print("Saving to file #" + str(fileCounter))
             np.save(outFile, mats)
@@ -360,9 +366,14 @@ def buildIrcHandVectors(ircDataPath=IRC_DATA_PATH,
         playerToMat = {}
         for player, gameState in game.roundVectors(debug=debug):
 
+            # Note: equity is modeled as plain rank for now. Rank is how strong
+            # the hand is. The greater the number the higher the rank. I'm using
+            # the eval7 package.
             label = gameState.get("equity", player.pos)  # We predict equity
-            vec = gameState.asVector(playerFeatsBlackList=["equity", "pos"])
+            vec = gameState.asVector(playerFeatsBlackList=["equity", "pos"]) # Get vector without equity
             vec.append(label)
+
+            # Build rounds matrix
             if player.pos in playerToMat:
                 mat = playerToMat[player.pos]
                 mat = np.vstack((mat, vec))
