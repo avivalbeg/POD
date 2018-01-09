@@ -1,7 +1,7 @@
 # Paths
 
 DATA_DIR_PATH = "data"
-IRC_DATA_PATH = "data/irc-data"
+IRC_DATA_PATH = "../PBOLD3/data/irc-data"
 HAND_DATA_PATH = "data/hand-data"
 POKER_BOT_DATA_PATH = "data/pb-data"
 HOLDEM_PATHS_REGEX = r"holdem*"

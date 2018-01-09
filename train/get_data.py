@@ -346,6 +346,7 @@ def buildIrcHandVectors(ircDataPath=IRC_DATA_PATH,
         i += 1
         if i > 600:
             outFile.close()
+            os.remove(path)
             break
 
         if i % 200 == 0:
