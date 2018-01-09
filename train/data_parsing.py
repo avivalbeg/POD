@@ -12,6 +12,7 @@ from os.path import join, isdir, splitext, exists
 from pprint import pprint
 from random import choice
 import numpy as np
+from os import listdir
 from pandas.core.frame import DataFrame
 from sklearn.cross_validation import train_test_split
 
@@ -30,91 +31,6 @@ from util import *
 from constants import *
 
 
-class DeepMindPokerDataLoader(DataLoader):
-    """Loads an array of 2D matrices, each representing
-     a Deep Mind Poker Bot game. Each row of a matrix is one round vector.
-     The last column of each round vector is a binary indicating whether the
-     round was won or lost, and the last two columns indicate the choice that
-     was made in that round."""
-
-    def __init__(self, cap=float('inf')):
-        gameLogger = GameLogger()
-        games = gameLogger.mongodb.games.find()
-        classes = ["Lost", "Won"]
-        prevRoundId = (np.nan, np.nan, np.nan)
-
-        gameMats = []
-        allVecs = []
-        i = 0
-        for game in games:
-            print(i)
-            if i >= cap:
-                break
-
-            outcome = game["FinalOutcome"]
-
-            if outcome in ("Neutral",):
-                continue
-
-            rounds = sorted(game["rounds"],
-                            key=lambda x: (GameStages.index(x["round_values"]["gameStage"]), x["round_number"]))
-
-            if not rounds:
-                continue
-
-            gameVec = []
-            for j, roundData in enumerate(rounds):
-                roundVec = self.makeRoundVector(roundData["round_values"])
-                roundVec = np.hstack((roundVec, np.array([classes.index(outcome)])))
-                gameVec.append(roundVec)
-                allVecs.append(roundVec)
-                if roundData["round_values"]["decision"] != "Fold":
-                    i += 1
-                    gameMats.append(pad(np.array(gameVec), MAX_N_ROUNDS, len(roundVec)))
-
-        gameMats = np.array(gameMats)
-        np.random.shuffle(gameMats)
-        # No dev set. This is good for Keras-based models which use some of
-        # the train set for dev
-
-        train, test = train_test_split(gameMats)
-
-        self.trainX, self.train_y = np.split(train, (-1,), 2)
-        self.testX, self.test_y = np.split(test, (-1,), 2)
-
-
-        self.train_y = np.max(np.squeeze(self.train_y, 2), 1)
-        self.test_y = np.max(np.squeeze(self.test_y, 2), 1)
-
-    def makeRoundVector(self, roundValues):
-        """Creates a vector representation of one Deep Mind Poker Bot
-        round."""
-        # Reduce number of decisions
-        action = roundValues["decision"]
-        if "bet" in action.lower() or "all" in action.lower(): action = "Raise"
-        if "check" in action.lower() or "call" in action.lower(): action = "Call"
-        if "fold" in action.lower(): action = "Raise"  # Dummy; folded rounds won't be considered
-        # One hot encode decision
-        decisionVector = oneHotEncCat(action, FEATURE_ACTIONS)
-
-        # Insert all values to vector
-        vector = np.zeros(len(DEEPMIND_GAME_FEATURES) - 1)
-        for i, feat in enumerate(DEEPMIND_GAME_FEATURES):
-            if i < len(vector):
-                vector[i] = featurize(getOrDefault(roundValues, feat, np.nan),
-                                      strDic=
-                                      {x: i for i, x in
-                                       list(enumerate(DEEPMIND_ACTIONS)) + list(enumerate(GameStages))})
-        return np.hstack((vector, decisionVector))
-
-    def nClasses(self):
-        return len([x for x in np.unique(self.train_y) if x >= 0])
-
-
-class IrcDataLoader(DataLoader):
-    def __init__(self):
-        quit()
-
 
 class GameState:
     """An object to represent a game state. The data is stored in a numpy array
@@ -124,42 +40,51 @@ class GameState:
     feature list. Player feature positions are multiplied by the player's position."""
 
     def __init__(self):
-        self._vector = np.zeros(len(OUR_FEATURES) + MAX_N_PLAYERS * len(PLAYER_FEATURES))
+        self._vector = np.zeros(len(GLOBAL_FEATURES) + MAX_N_PLAYERS * len(PLAYER_FEATURES))
 
-    def asVector(self):
-        return self._vector
+    def asVector(self, globalFeatsBlackList=[], playerFeatsBlackList=[]):
+        out = []
+        for feat in GLOBAL_FEATURES:
+            if not feat in globalFeatsBlackList:
+                out.append(self.get(feat))
+        for feat in PLAYER_FEATURES:
+            if feat not in playerFeatsBlackList:
+                for pos in range(1, MAX_N_PLAYERS + 1):
+                    out.append(self.get(feat, pos))
+        return out
 
     def get(self, item, nPlayer=0):
         value = None
-        if item in OUR_FEATURES:
+        if item in GLOBAL_FEATURES:
             if nPlayer:
                 raise ValueError("This is not a player feature, yet player number was specified.")
-            value = self._vector[OUR_FEATURES.index(item)]
+            value = self._vector[GLOBAL_FEATURES.index(item)]
         elif nPlayer and item in PLAYER_FEATURES:
             if nPlayer > MAX_N_PLAYERS:
                 raise ValueError("Player number %d exceeds maximal number of players (%d)" % (nPlayer, MAX_N_PLAYERS))
-            value = self._vector[len(OUR_FEATURES) + (nPlayer - 1) * len(PLAYER_FEATURES) + PLAYER_FEATURES.index(item)]
+            value = self._vector[
+                len(GLOBAL_FEATURES) + (nPlayer - 1) * len(PLAYER_FEATURES) + PLAYER_FEATURES.index(item)]
         else:
             raise KeyError(str(item))
         return float(value)
 
     def set(self, item, newValue, nPlayer=0):
-        if item in OUR_FEATURES:
+        if item in GLOBAL_FEATURES:
             if nPlayer:
                 raise ValueError("This is not a player feature, yet player number was specified.")
-            self._vector[OUR_FEATURES.index(item)] = newValue
+            self._vector[GLOBAL_FEATURES.index(item)] = newValue
         elif nPlayer and item in PLAYER_FEATURES:
             if nPlayer > MAX_N_PLAYERS:
                 raise ValueError("Player number %d exceeds maximal number of players (%d)" % (nPlayer, MAX_N_PLAYERS))
             self._vector[
-                len(OUR_FEATURES) + (nPlayer - 1) * len(PLAYER_FEATURES) + PLAYER_FEATURES.index(item)] = newValue
+                len(GLOBAL_FEATURES) + (nPlayer - 1) * len(PLAYER_FEATURES) + PLAYER_FEATURES.index(item)] = newValue
         else:
             raise KeyError(str(item))
 
     def inc(self, item, value, nPlayer=0):
         self.set(item, self.get(item, nPlayer) + value, nPlayer)
 
-    _headersAndPlayerNumber = [(feat, 0) for feat in OUR_FEATURES] + joinLists(
+    _headersAndPlayerNumber = [(feat, 0) for feat in GLOBAL_FEATURES] + joinLists(
         [[(feat, i + 1) for feat in PLAYER_FEATURES] for i in range(MAX_N_PLAYERS)])
 
     def __str__(self):
@@ -253,7 +178,7 @@ class Game(object):
 
             # Update each player's equity (right now it's rank)
             for player in self.players:
-                gameState.set("equity", getRank(player.cards+cardsOnTable), player.pos)
+                gameState.set("equity", getRank(player.cards + cardsOnTable), player.pos)
 
             someonePlayed = True  # Tells us if there are still players who didn't quit/fold
             gameState.set("stagePotValue", 0)  # re-init every stage
@@ -628,7 +553,6 @@ class IrcHoldemDataParser(IrcDataParser):
         self._seenPlayers = set()
 
         self._playerIt = self._makePlayerIterator(playerSkipProb)
-        self._gameIt = self._makeGamesDataIterator()
 
     def _makePlayerIterator(self, skipProb):
         """Returns a generator that iterates over all players
@@ -766,12 +690,9 @@ class IrcHoldemDataParser(IrcDataParser):
                     boardCards,
                     players)
 
-    #         except:
-    #             self.badGames+=1
-    #             # returns None
-
-
-
+        #         except:
+        #             self.badGames+=1
+        #             # returns None
 
 
 def test():

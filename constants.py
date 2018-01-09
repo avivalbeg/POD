@@ -47,17 +47,17 @@ PreFlop, Flop, Turn, River, Showdown = GameStages
 relEquityCache = {}
 globalEquityCache = {}
 
-NAN_NUM = -1  # This is a numerical representation of "nothing"
+NAN_NUM = 0  # This is a numerical representation of "nothing"
 
 # Features
 
 FEATURE_ACTIONS = ["Call", "Raise"]  # The actions that are considered for features
 
 MAX_N_ROUNDS = 11  # Maximal number of rounds per game
-MAX_N_PLAYERS = 11  # Maximal number of players
+MAX_N_PLAYERS = 10  # Maximal number of players
+N_HAND_CLASSES = 3
 
-
-OUR_FEATURES = [
+GLOBAL_FEATURES = [
 
     'gameStage',
     'roundNumber',

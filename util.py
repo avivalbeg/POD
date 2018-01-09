@@ -2,7 +2,13 @@
 import re
 import sys
 import numpy as np
-from constants import MONEY_FEATURES, NAN_NUM, GameStages
+from collections import defaultdict
+
+from matplotlib import pyplot
+from sklearn.cluster.k_means_ import KMeans
+from sklearn.cross_validation import train_test_split
+
+from constants import *
 from pandas.util.testing import isiterable
 from pprint import pprint
 import ntpath
@@ -228,3 +234,31 @@ def joinLists(lists):
     for l in lists:
         bigList.extend(l)
     return bigList
+
+
+padSequence = lambda mat, n: np.pad(mat[-n:], ((0, max([0, n - len(mat)])), (0, 0)), 'constant')
+
+
+def makeFile(path):
+    open(path, "w").close()
+    return open(path, "ab")
+
+
+def divXy(Xy, axis):
+    X, y = np.split(Xy, (-1,), axis)
+    y = np.max(np.squeeze(y, axis), axis - 1)
+    return X, y
+
+
+def trainDevTestPrep(array):
+
+    # Split into train,dev,test
+    train_dev, test = train_test_split(array)
+    train, dev = train_test_split(train_dev)
+
+    # Split to input and target
+    trainX, train_y = divXy(train, 2)
+    devX, dev_y = divXy(dev, 2)
+    testX, test_y = divXy(test, 2)
+
+    return trainX,train_y,devX,dev_y,testX,test_y

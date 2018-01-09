@@ -1,3 +1,4 @@
+
 import os
 
 import itertools
@@ -5,10 +6,11 @@ import itertools
 import sys
 from itertools import product
 
-
+from os.path import join
+from train.get_data import *
+from train.data_parsing import *
 from constants import *
 from util import *
-from train.data_parsing import DeepMindPokerDataLoader
 
 runBenchmark = False
 runAnn = True
@@ -39,30 +41,6 @@ def collectCardDistributions():
                 pprint(cardCounts)
                 print()
     pprint(cardCounts)
-
-
-def countGamesWithAllCardsShown():
-    gameSets = set()
-    total = 0.
-    withCards = 0.
-    parser = IrcHoldemDataParser()
-    for game in parser.iterGames():
-        total += 1
-        if all([player.cards for player in game.players]):
-
-            allActions = "".join(
-                [player.preflopActions + player.flopActions + player.turnActions + player.riverActions for player in
-                 game.players]
-            )
-            if NA in allActions and not ALL_IN in allActions:
-                withCards += 1
-                print(game)
-                print(game.gameId, game.timeStamp, game.gameSetId, withCards)
-                gameSets.add(game.gameSetId)
-
-                if total % 500 == 0:
-                    print(gameSets)
-
 
 
 
@@ -120,9 +98,9 @@ def trainLstm(data):
     nEpochs = 35
 
     regs = sorted(np.logspace(-4, 2, num=4, base=10))
-    batchSizes = [10, 3, 32]
-    hidSizes = [1000, 400]
-    layerCounts = [3, 2, 4]
+    batchSizes = [32, 10, 3]
+    hidSizes = [500, 1000, 400]
+    layerCounts = [1, 3, 2, 4]
     dropouts = [.5, .2, .7]
     activations = ['sigmoid', 'tanh', 'relu']
 
@@ -139,7 +117,7 @@ def trainLstm(data):
         print("Trying config:")
         print([config])
         print()
-        acc, nEpochs = model.trainGraded(verbose=1)
+        acc, nEpochs = model.trainGraded(step=1, verbose=1)
         print()
         print("Achieved accuracy of %s within %s epochs" % (str(acc),
                                                              nEpochs))
@@ -158,11 +136,11 @@ def main(args):
     #     getIrcData()
     #     dlPokerBotData()
     #     mineGameData(debugMode=False)
-    # buildIrcVectors(debug=True)
-    #     mineHandData()
+    # buildIrcHandVectors(debug=False)
+    #        mineHandData()
     #     train1(IrcDataLoader())
-    trainLstm(DeepMindPokerDataLoader(1000))
-
+    # trainLstm(DeepMindPokerDataLoader(1000))
+    trainLstm(IrcHandDataLoader())
     pass
 
 

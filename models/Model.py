@@ -472,47 +472,61 @@ class TfLstmClassifier(TFModel, ANN):
         self.init_op = tf.global_variables_initializer()
         print('Finished computation graph')
 
-
-
-
 class LstmClassifier(ANN):
     def __init__(self, config):
+        ANN.__init__(self, config)
 
         assert config.nLayers >= 1
 
         self._config = config
 
         self._model = Sequential()
+
+
+        # Add input layer
+
         self._model.add(Dense(config.hidSize, input_shape=config.inputShape,
                               kernel_regularizer=l2(config.reg),
                               activity_regularizer=l1(config.reg)
                               ))
 
-        lstmLayer = lambda retSeqs: LSTM(config.hidSize,
+
+        # Add LSTM layers
+
+        lstmLayer = lambda retSeqs: LSTM(
+                                config.hidSize,
                                  kernel_regularizer=l2(config.reg),
                                  recurrent_regularizer=l2(config.reg),
                                  bias_regularizer=l1(config.reg),
                                  activity_regularizer=l1(config.reg),
-
                                  dropout=config.dropout,
                                  recurrent_dropout=0.,  # vary?
                                  return_sequences=retSeqs)
 
-        for _ in range(config.nLayers - 1):
+        for _ in range(config.nLayers-1):
             self._model.add(lstmLayer(True))
         self._model.add(lstmLayer(False))
 
-        self._model.add(Dense(1, activation=config.activation))  # TODO: Modify output shape
-        self._model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        # Add softmax layer to output classes
+        self._model.add(Dense(config.data.nClasses(), activation='softmax'))
 
-    def train(self, X, y, verbose=1):
-        self._model.fit(X, y, epochs=self._config.nEpochs,
+        self._model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    def train(self, X, y, epochsOverride=0, verbose=1):
+        self._model.fit(X, y,
                         batch_size=self._config.batchSize,
+                        epochs=epochsOverride or self._config.nEpochs,
                         verbose=verbose)
 
-    def eval(self, X, y):
-        scores = self._model.evaluate(X, y, verbose=0)
+    def eval(self, X, y, verbose=0):
+        scores = self._model.evaluate(X, y, verbose=verbose)
         return scores[1]
+
+    def predict(self, X):
+        return self._model.predict(X)
+
+    def save(self, path, overwrite=True):
+        self._model.save(path, overwrite=overwrite)
 
     def trainGraded(self, step=1, verbose=1):
         """Finds the ideal #epochs for this model."""
@@ -523,14 +537,8 @@ class LstmClassifier(ANN):
             self._model.fit(trainX, train_y, epochs=step,
                             batch_size=self._config.batchSize,
                             verbose=verbose)
-            _, acc = self._model.evaluate(testX, test_y, verbose=verbose)
+            _, acc = self._model.evaluate(testX, test_y, verbose=0)
             print("Accuracy:", acc)
             if acc > maxAcc:
                 maxAcc, nEpochs = acc, i * step
         return maxAcc, nEpochs
-
-
-class TFRegressionModel(TFModel):
-    def eval(self, X, y, session):
-        return (session.run(self.cost, feed_dict={self.labelsPlaceholder: y,
-                                                  self.prediction: self.predict(X, session)}))
