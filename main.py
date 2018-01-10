@@ -1,4 +1,3 @@
-
 import os
 
 import itertools
@@ -43,7 +42,6 @@ def collectCardDistributions():
     pprint(cardCounts)
 
 
-
 def train(data):
     """Run various models on a dataset, using the models package."""
     from models.DataLoader import TextVectorDataLoader, SKLearnDataLoader, \
@@ -54,8 +52,6 @@ def train(data):
     from models.Model import SVMModel, LogisticRegressionModel, KMeansModel, \
         KNeighborsModel, SoftmaxANN, DoubleLayerSoftmaxANN, TripleLayerSoftmaxANN
     from sklearn import datasets
-
-
 
     print("Training with %d examples" % len(data))
     if runBenchmark:
@@ -83,7 +79,6 @@ def train(data):
             debug=True)
 
 
-
 def trainLstm(data):
     """Train an LSTM on a dataset.
     This is different from the train function above because an LSTM is
@@ -100,7 +95,7 @@ def trainLstm(data):
     regs = sorted(np.logspace(-4, 2, num=4, base=10))
     batchSizes = [32, 10, 3]
     hidSizes = [500, 1000, 400]
-    layerCounts = [1, 3, 2, 4]
+    layerCounts = [2, 3, 2, 4]
     dropouts = [.5, .2, .7]
     activations = ['sigmoid', 'tanh', 'relu']
 
@@ -120,7 +115,7 @@ def trainLstm(data):
         acc, nEpochs = model.trainGraded(step=1, verbose=1)
         print()
         print("Achieved accuracy of %s within %s epochs" % (str(acc),
-                                                             nEpochs))
+                                                            nEpochs))
         if acc >= maxAcc:
             config.nEpochs = nEpochs
             maxAcc, bestConfig = acc, config
@@ -136,11 +131,11 @@ def main(args):
     #     getIrcData()
     #     dlPokerBotData()
     #     mineGameData(debugMode=False)
-    # buildIrcHandVectors(debug=False)
     #        mineHandData()
     #     train1(IrcDataLoader())
     # trainLstm(DeepMindPokerDataLoader(1000))
-    trainLstm(IrcHandDataLoader())
+    buildIrcHandVectors(debug=False)
+    # trainLstm(IrcHandDataLoader())
     pass
 
 

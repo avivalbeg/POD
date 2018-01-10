@@ -3,6 +3,8 @@
 DATA_DIR_PATH = "data"
 IRC_DATA_PATH = "../PBOLD3/data/irc-data"
 HAND_DATA_PATH = "data/hand-data"
+WINNING_HAND_DATA_PATH = "data/winning-hand-data"
+BLUFF_DATA_PATH = "data/bluff-data"
 POKER_BOT_DATA_PATH = "data/pb-data"
 HOLDEM_PATHS_REGEX = r"holdem*"
 IRC_GAME_VECTORS_PATH = "data/game-vectors/irc-game-vectors"

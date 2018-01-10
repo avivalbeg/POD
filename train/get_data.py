@@ -6,7 +6,6 @@ from numpy import random
 from os import listdir
 from sklearn.cross_validation import train_test_split
 
-
 from bot.tools.mongo_manager import GameLogger
 from models.DataLoader import DataLoader
 from util import encodeRec, DummyLogger
@@ -287,15 +286,14 @@ class IrcHandDataLoader(DataLoader):
     'buildIrcHandVectors' function. Used to train an LSTM that predicts
     hand strength. The number of hand strenght buckets used is defined in
     the constant N_HAND_CLASSES."""
+
     def __init__(self):
         # Load all game matrices from all files
         arr = None
         for f in listdir(HAND_DATA_PATH):
             curArr = np.load(join(HAND_DATA_PATH, f))
-            if type(arr) == type(None):
-                arr = curArr
-            else:
-                arr = np.vstack((arr, curArr))
+            arr = curArr if type(arr) == type(None) else np.vstack((arr, curArr))
+
         self.trainX, self.train_y, self.devX, self.dev_y, self.testX, self.test_y = trainDevTestPrep(arr)
 
         # Cluster the labels
@@ -310,7 +308,8 @@ class IrcHandDataLoader(DataLoader):
         # Create a function that maps ranks into their classes according to the clusters
         # It maps ranks that are 0 or less into unique classes, rather than their clusters
         # This is so because 0 and less corresponds to folding at different stages of the game
-        toClasses = lambda ranks: to_categorical([kmeansModel.predict([[rank]])[0] if rank>0 else N_HAND_CLASSES-rank for rank in ranks])
+        toClasses = lambda ranks: to_categorical(
+            [kmeansModel.predict([[rank]])[0] if rank > 0 else N_HAND_CLASSES - rank for rank in ranks])
 
         ## Show label distribution where the clusters are color coded
         yPred = kmeansModel.predict([[x] for x in y])
@@ -331,59 +330,85 @@ class IrcHandDataLoader(DataLoader):
 
 
 def buildIrcHandVectors(ircDataPath=IRC_DATA_PATH,
-                        outPath=HAND_DATA_PATH,
+                        handOutpath=HAND_DATA_PATH,
+                        winningHandOutpath=WINNING_HAND_DATA_PATH,
+                        bluffOutpath=BLUFF_DATA_PATH,
                         debug=False,
-                        maxIterations = 600):
+                        maxIterations=600):
     """Iterate features of IRC games and save them as vectors."""
+
     parser = IrcHoldemDataParser(ircDataPath)
 
     fileCounter = 1
-    path = join(outPath, "%d.npy" % fileCounter)
 
-    mats = None
-    outFile = makeFile(path)
+    handPath = join(handOutpath, "%d.npy" % fileCounter)
+    wHandPath = join(winningHandOutpath, "%d.npy" % fileCounter)
+    bluffPath = join(bluffOutpath, "%d.npy" % fileCounter)
+
+    handMats = None
+    wHandMats = None
+    bluffMats = None
+
     i = 1
     for game in parser.iterGames():
+        print("=====================")
         if game.nPlayers > MAX_N_PLAYERS:
             continue
 
         i += 1
         # Stop here
         if i > maxIterations:
-            outFile.close()
-            os.remove(path)
             break
 
         # Save data periodically
         if i % 200 == 0:
             print("Saving to file #" + str(fileCounter))
-            np.save(outFile, mats)
-            mats = None
-            fileCounter += 1
-            path = join(outPath, "%d.npy" % fileCounter)
-            outFile = makeFile(path)
+            np.save(handPath, handMats)
+            np.save(wHandPath, wHandMats)
+            np.save(bluffPath, bluffMats)
+
+            fileCounter = 1
+            handPath = join(handOutpath, "%d.npy" % fileCounter)
+            wHandPath = join(winningHandOutpath, "%d.npy" % fileCounter)
+            bluffPath = join(bluffOutpath, "%d.npy" % fileCounter)
+
+            handMats = None
+            wHandMats = None
+            bluffMats = None
 
         playerToMat = {}
+        prevVec = game.initGameState().asVector(playerFeatsBlackList=["equity", "pos"])
         for player, gameState in game.roundVectors(debug=debug):
-
+            print(player.pos, gameState.get("gameStage"), gameState.get("roundNumber"))
             # Note: equity is modeled as plain rank for now. Rank is how strong
             # the hand is. The greater the number the higher the rank. I'm using
             # the eval7 package.
-            label = gameState.get("equity", player.pos)  # We predict equity
-            vec = gameState.asVector(playerFeatsBlackList=["equity", "pos"]) # Get vector without equity
-            vec.append(label)
+            rankLabel = gameState.get("equity", player.pos)  # To predict rank
+            actionLabel = gameState.get("lastAction", player.pos)  # To predict action
+            vec = gameState.asVector(playerFeatsBlackList=["equity", "pos"])  # Get vector without equity
+            rlVec = np.append(prevVec,actionLabel)
+            prevVec = vec.copy()
+            vec.append(rankLabel)
 
             # Build rounds matrix
             if player.pos in playerToMat:
                 mat = playerToMat[player.pos]
                 mat = np.vstack((mat, vec))
+
             else:
                 mat = np.expand_dims(vec, 0)
 
             playerToMat[player.pos] = mat
 
             newMat = np.expand_dims(padSequence(mat, MAX_N_ROUNDS), 0)
-            if type(mats) == type(None):
-                mats = newMat
-            else:
-                mats = np.vstack((mats, newMat))
+
+            # Append to all hands mat
+            handMats = newMat if (type(handMats) == type(None)) else np.vstack((handMats, newMat))
+
+            # Append to winning hand and bluff mats
+            if game.getWinner() == player:
+                if player.cards:
+                    wHandMats = newMat if (type(wHandMats) == type(None)) else np.vstack((wHandMats, newMat))
+
+                else:
+                    bluffMats = newMat if (type(bluffMats) == type(None)) else np.vstack((bluffMats, newMat))
