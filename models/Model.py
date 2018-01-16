@@ -31,6 +31,17 @@ from keras.preprocessing import sequence
 from .utils import accuracy
 
 
+import gym
+import numpy as np
+import random
+from keras.models import Sequential
+from keras.layers import Dense, Dropout
+from keras.optimizers import Adam
+
+from collections import deque
+
+
+
 # Abstract classes
 
 class Model:
@@ -317,8 +328,54 @@ class ClassifierANN(ANN):
         return (session.run(accuracy, feed_dict={self.inputsPlaceholder: X,
                                                  self.labelsPlaceholder: y}))
 
+class FeedforwardNeuralClassifier(ClassifierANN):
+        def __init__(self, config):
+            Model.__init__(self, config)
+            from keras.regularizers import l2, l1
+            from keras import Sequential
+            from keras.layers import Dense
+            assert config.nLayers >= 1
 
-# @TODO: Generalize this into n layers
+            self._config = config
+
+            model = Sequential()
+            model.add(Dense(config.hidSize,
+                            input_dim=config.nFeatures,
+                            kernel_regularizer=l2(config.reg),
+                            bias_regularizer=l1(config.reg),
+                            activity_regularizer=l1(config.reg),
+                            activation=config.activation))
+
+            for _ in range(config.nLayers):
+                model.add(Dense(config.hidSize,
+                                kernel_regularizer=l2(config.reg),
+                                bias_regularizer=l1(config.reg),
+                                activity_regularizer=l1(config.reg),
+                                activation=config.activation,
+
+                                ))
+
+            model.add(Dense(config.nClasses, activation='softmax'))
+            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+            self._model = model
+
+        def train(self, X, y, epochsOverride=0, verbose=0):
+            self._model.fit(X, y,
+                            batch_size=self._config.batchSize,
+                            epochs=epochsOverride or self._config.nEpochs,
+                            verbose=verbose)
+
+        def eval(self, X, y, verbose=0):
+            scores = self._model.evaluate(X, y, verbose=verbose)
+            return scores[1]
+
+        def predict(self, X):
+            return self._model.predict(X)
+
+        def save(self, path, overwrite=True):
+            self._model.save(path, overwrite=overwrite)
+
 class SoftmaxANN(ClassifierANN, TFModel):
     def __init__(self, config):
         ClassifierANN.__init__(self, config)
@@ -475,7 +532,7 @@ class TfLstmClassifier(TFModel, ANN):
 class LstmClassifier(ANN):
     def __init__(self, config):
         ANN.__init__(self, config)
-
+        print(config.nLayers)
         assert config.nLayers >= 1
 
         self._config = config
@@ -510,7 +567,9 @@ class LstmClassifier(ANN):
         # Add softmax layer to output classes
         self._model.add(Dense(config.data.nClasses(), activation='softmax'))
 
-        self._model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        self._model.compile(loss='categorical_crossentropy',
+                            optimizer=Adam(lr=config.lr),
+                            metrics=['accuracy'])
 
     def train(self, X, y, epochsOverride=0, verbose=1):
         self._model.fit(X, y,
@@ -538,7 +597,168 @@ class LstmClassifier(ANN):
                             batch_size=self._config.batchSize,
                             verbose=verbose)
             _, acc = self._model.evaluate(testX, test_y, verbose=0)
-            print("Accuracy:", acc)
             if acc > maxAcc:
+                print("New accuracy:", acc)
                 maxAcc, nEpochs = acc, i * step
         return maxAcc, nEpochs
+
+
+class TimeSeriesLstm(ANN):
+    def __init__(self, config):
+        ANN.__init__(self, config)
+        assert config.nLayers >= 1
+
+        self._config = config
+
+        self._model = Sequential()
+
+        # Add input layer
+
+        self._model.add(LSTM(config.hidSize,
+                             input_shape=config.inputShape,
+                             kernel_regularizer=l2(config.reg),
+                             recurrent_regularizer=l2(config.reg),
+                             bias_regularizer=l1(config.reg),
+                             activity_regularizer=l1(config.reg),
+                             dropout=config.dropout,
+                             recurrent_dropout=0.,  # vary?
+                             return_sequences=True
+                             ))
+
+        # Add LSTM layers
+
+        lstmLayer = lambda retSeqs: LSTM(
+            config.hidSize,
+            kernel_regularizer=l2(config.reg),
+            recurrent_regularizer=l2(config.reg),
+            bias_regularizer=l1(config.reg),
+            activity_regularizer=l1(config.reg),
+            dropout=config.dropout,
+            recurrent_dropout=0.,  # vary?
+            return_sequences=retSeqs)
+
+        for _ in range(config.nLayers - 1):
+            self._model.add(lstmLayer(True))
+        self._model.add(lstmLayer(False))
+
+        # Add softmax layer to output classes
+        self._model.add(Dense(1))
+
+        self._model.compile(loss='mean_squared_error', optimizer='adam')
+
+    def train(self, X, y, epochsOverride=0, verbose=1):
+        self._model.fit(X, y,
+                        batch_size=self._config.batchSize,
+                        epochs=epochsOverride or self._config.nEpochs,
+                        verbose=verbose)
+
+    def eval(self, X, y, verbose=1):
+        return self._model.evaluate(X, y, verbose=verbose)
+
+    def predict(self, X):
+        return self._model.predict(X)
+
+    def save(self, path, overwrite=True):
+        self._model.save(path, overwrite=overwrite)
+
+
+class DQN:
+    def __init__(self, env):
+        self.env = env
+        self.memory = deque(maxlen=2000)
+
+        self.gamma = 0.85
+        self.epsilon = 1.0
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.995
+        self.learning_rate = 0.005
+        self.tau = .125
+
+        self.model = self.create_model()
+        self.target_model = self.create_model()
+
+    def create_model(self):
+        model = Sequential()
+        state_shape = self.env.observation_space.shape
+        model.add(Dense(24, input_dim=state_shape[0], activation="relu"))
+        model.add(Dense(48, activation="relu"))
+        model.add(Dense(24, activation="relu"))
+        model.add(Dense(self.env.action_space.n))
+        model.compile(loss="mean_squared_error",
+                      optimizer=Adam(lr=self.learning_rate))
+        return model
+
+    def act(self, state):
+        self.epsilon *= self.epsilon_decay
+        self.epsilon = max(self.epsilon_min, self.epsilon)
+        if np.random.random() < self.epsilon:
+            return self.env.action_space.sample()
+        return np.argmax(self.model.predict(state)[0])
+
+    def remember(self, state, action, reward, new_state, done):
+        self.memory.append([state, action, reward, new_state, done])
+
+    def replay(self):
+        batch_size = 32
+        if len(self.memory) < batch_size:
+            return
+
+        samples = random.sample(self.memory, batch_size)
+        for sample in samples:
+            state, action, reward, new_state, done = sample
+            target = self.target_model.predict(state)
+            if done:
+                target[0][action] = reward
+            else:
+                Q_future = max(self.target_model.predict(new_state)[0])
+                target[0][action] = reward + Q_future * self.gamma
+            self.model.fit(state, target, epochs=1, verbose=0)
+
+    def target_train(self):
+        weights = self.model.get_weights()
+        target_weights = self.target_model.get_weights()
+        for i in range(len(target_weights)):
+            target_weights[i] = weights[i] * self.tau + target_weights[i] * (1 - self.tau)
+        self.target_model.set_weights(target_weights)
+
+    def save_model(self, fn):
+        self.model.save(fn)
+
+
+# Example how to use:
+# def main(self):
+#     env = gym.make("MountainCar-v0")
+#     gamma = 0.9
+#     epsilon = .95
+#
+#     trials = 1000
+#     trial_len = 500
+#
+#     # updateTargetNetwork = 1000
+#     dqn_agent = DQN(env=env)
+#     steps = []
+#     for trial in range(trials):
+#         cur_state = env.reset().reshape(1, 2)
+#         for step in range(trial_len):
+#             action = dqn_agent.act(cur_state)
+#             new_state, reward, done, _ = env.step(action)
+#
+#             # reward = reward if not done else -20
+#             new_state = new_state.reshape(1, 2)
+#             dqn_agent.remember(cur_state, action, reward, new_state, done)
+#
+#             dqn_agent.replay()  # internally iterates default (prediction) model
+#             dqn_agent.target_train()  # iterates target model
+#
+#             cur_state = new_state
+#             if done:
+#                 break
+#         if step >= 199:
+#             print("Failed to complete in trial {}".format(trial))
+#             if step % 10 == 0:
+#                 dqn_agent.save_model("trial-{}.model".format(trial))
+#         else:
+#             print("Completed in {} trials".format(trial))
+#             dqn_agent.save_model("success.model")
+#             break
+

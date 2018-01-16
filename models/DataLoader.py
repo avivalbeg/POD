@@ -57,6 +57,7 @@ class DataLoader:
         return self.trainX.shape[0]
     def nFeatures(self):
         return self.trainX.shape[1]
+
     def nClasses(self):
         # If not one hot encoded, return maximal value
         if len(self.train_y.shape)==1:

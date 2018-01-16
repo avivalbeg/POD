@@ -11,6 +11,7 @@
     - k-fold cross validation
     - validation for ANNs
     - Save models
+    - Improve logging info presentation
 """
 
 from eval_tools import *

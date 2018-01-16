@@ -101,6 +101,10 @@ class GameState:
 
 
 class Game(object):
+    """Represents a poker game using numerical values.
+    Defines a method roundVectors, which iterates over
+    all the game's rounds, returning their corresponding
+    feature vectors (based on IRC data format)."""
     def __init__(self, timeStamp,
                  gameSetId,
                  gameId,
@@ -167,6 +171,11 @@ class Game(object):
         return gs
 
     def roundVectors(self, debug=False):
+        """Go through the game's rounds, and for each
+        round return (player,gameState), where player is
+        the player that played this round, and gameState
+        is a GameState object representing the current game
+        state with numerical values."""
         gameState = self.initGameState()
         cardsOnTable = []
 
@@ -208,8 +217,8 @@ class Game(object):
 
     def playRound(self, gameState, debug=False):
         """Play one round of this game, starting from the given game state, and going through
-        all the players in the table. For each player, if that player is still in the game,
-        yield True, otherwise, yield false."""
+        all the players in the table. The gameState argument is edited. Returns the player who
+        played this round if someone played, None otherwise."""
 
         gameStageStr = GameStages[int(gameState.get("gameStage"))]
         nextStage = GameStages[GameStages.index(gameStageStr) + 1]
@@ -229,14 +238,14 @@ class Game(object):
 
         for curPlayer in self.players:
             player = curPlayer
-
             pos = curPlayer.pos
+
             # Find action
             actions = getattr(curPlayer, gameStageStr + "Actions")
             action = getOrDefault(actions,
                                   int(gameState.get("roundNumber")),
                                   NA)
-
+            gameState.set("lastAction",ACTIONS.index(action),pos)
             # Update first and second raiser and caller
             if action in (RAISE, BET, ALL_IN):
                 gameState.set("lastRaiser", pos)
@@ -294,6 +303,8 @@ class Game(object):
                 raise ValueError("Unexpected action " + action)
 
             if debug and action in (RAISE, BET, ALL_IN, CALL, BLIND):
+                print()
+                print(pos, action)
                 print()
                 print(gameState)
             yield player
@@ -505,6 +516,12 @@ class IrcDataParser(DataParser):
 
 
 class IrcHoldemDataParser(IrcDataParser):
+    """Class for parsing the IRC data into feature vectors. It
+    reads data directly from the IRC database, so it should be
+    unpacked and stored locally. This class defines methods for
+    iterating over the IRC games."""
+
+
     # API
 
     def nextGame(self):

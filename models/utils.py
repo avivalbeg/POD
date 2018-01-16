@@ -1,10 +1,14 @@
 
 import sys
 import time
+from numpy import random
+
 import numpy as np
 
 import tensorflow as tf
+from collections import defaultdict
 from pandas.core.frame import DataFrame
+from sklearn.cross_validation import train_test_split
 
 
 def sample_batch(X_train, y_train, batch_size):
@@ -76,8 +80,8 @@ def toOneHot(y):
     Transform an n-by-1 vector into an n-by-m
     matrix of one hot encoded row vectors.
     """
-    n = np.max(y) + 1
-    return np.eye(n)[y]
+    n = int(np.max(y) + 1)
+    return np.eye(n)[np.int32(y)]
 
 def fromOneHot(y):
     """
@@ -304,4 +308,108 @@ def getSentenceFeatures(termDict, wordVectors, words):
 
     return sentVector
 
-    
+
+
+def getCounts(li):
+    counts = defaultdict(lambda: 0)
+    for x in li:
+        counts[x] += 1
+    return counts
+
+
+def equateXy(X, y):
+    """Given target X and labels y, select a sample of X and y such that
+    all classes are equally represented."""
+    least = min(list(getCounts(y).values()))  # Least frequent class
+    classToInds = defaultdict(lambda: [])  # Which indices have some class
+    for i, cls in enumerate(y):
+        classToInds[cls].append(i)
+    # Equate: choose samples of the indices of each class which are
+    # all of the same size:
+    allInds = []
+    for cls, inds in classToInds.items():
+        allInds.extend(sample(inds, least))
+    return np.take(X, allInds, axis=0), np.take(y, allInds, axis=0)
+
+
+def equate(Xy):
+    """Given a labeled dataset target Xy, select a sample of X and y such that
+    all classes are equally represented."""
+    nAxes = len(Xy.shape)
+    _, y = np.split(Xy, (-1,), nAxes - 1)
+    y = np.squeeze(y, nAxes - 1)
+    least = min(list(getCounts(y).values()))  # Least frequent class
+    classToInds = defaultdict(lambda: [])  # Which indices have some class
+    for i, cls in enumerate(y):
+        classToInds[cls].append(i)
+    # Equate: choose samples of the indices of each class which are
+    # all of the same size:
+    allInds = []
+    for cls, inds in classToInds.items():
+        allInds.extend(sample(inds, least))
+    return np.take(Xy, allInds, axis=0)
+
+
+def divXy(Xy, axis):
+    X, y = np.split(Xy, (-1,), axis)
+    maxFunc = lambda vec: np.max(vec, axis - 1) if axis > 1 else vec
+    y = maxFunc(np.squeeze(y, axis))
+    return X, y
+
+
+def trainDevTestPrep(array, equateArray=False):
+    """Vectorized implementation."""
+    if equateArray:
+        array = equate(array)
+    nAxes = len(array.shape)
+    # Split into train,dev,test
+    train_dev, test = train_test_split(array)
+    train, dev = train_test_split(train_dev)
+    # Split to input and target
+    trainX, train_y = divXy(train, nAxes-1)
+    devX, dev_y = divXy(dev, nAxes-1)
+    testX, test_y = divXy(test, nAxes-1)
+
+    return trainX, train_y, devX, dev_y, testX, test_y
+
+
+# BACKUP:
+# def getCounts(li):
+#     counts = defaultdict(lambda : 0)
+#     for x in li:
+#         counts[x]+=1
+#     return counts
+#
+# def equate(X, y):
+#     """Given target X and labels y, select a sample of X and y such that
+#     all classes are equally represented."""
+#     least = min(list(getCounts(y).values())) # Least frequent class
+#     classToInds = defaultdict(lambda: []) # Which indices have some class
+#     for i, cls in enumerate(y):
+#         classToInds[cls].append(i)
+#     # Equate: choose samples of the indices of each class which are
+#     # all of the same size:
+#     allInds = []
+#     for cls, inds in classToInds.items():
+#         allInds.extend(random.sample(inds, least))
+#     return np.take(X,allInds,axis=0),np.take(y,allInds,axis=0)
+#
+#
+# def divXy(Xy, axis):
+#     X, y = np.split(Xy, (-1,), axis)
+#     maxFunc = lambda vec: np.max(vec, axis-1) if axis>1 else vec
+#     y = maxFunc(np.squeeze(y, axis))
+#     return X, y
+#
+#
+# def trainDevTestPrep(array, nAxes):
+#
+#     # Split into train,dev,test
+#     train_dev, test = train_test_split(array)
+#     train, dev = train_test_split(train_dev)
+#     # Split to input and target
+#     trainX, train_y = divXy(train, nAxes)
+#     devX, dev_y = divXy(dev, nAxes)
+#     testX, test_y = divXy(test, nAxes)
+#
+#     return trainX,train_y,devX,dev_y,testX,test_y

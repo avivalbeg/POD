@@ -1,9 +1,11 @@
 """Script for managing downloading, saving and scraping data.
 The actual work isn't done here, rather, these are scripts
 that manage objects that do the actual work."""
+from click.termui import progressbar
 from keras.utils.np_utils import to_categorical
-from numpy import random
 from os import listdir
+import random
+
 from sklearn.cross_validation import train_test_split
 
 from bot.tools.mongo_manager import GameLogger
@@ -281,115 +283,172 @@ class DeepMindPokerDataLoader(DataLoader):
         return len([x for x in np.unique(self.train_y) if x >= 0])
 
 
-class IrcHandDataLoader(DataLoader):
+class IrcHandMatsDataLoader(DataLoader):
     """A class for loading the hand rank data created and saved by the
     'buildIrcHandVectors' function. Used to train an LSTM that predicts
     hand strength. The number of hand strenght buckets used is defined in
     the constant N_HAND_CLASSES."""
 
-    def __init__(self):
+    def __init__(self, stage, cutoff=float('inf')):
         # Load all game matrices from all files
         arr = None
-        for f in listdir(HAND_DATA_PATH):
-            curArr = np.load(join(HAND_DATA_PATH, f))
+        i = 1
+        for f in listdir(HAND_DATA_2D_PATH):
+            i += 1
+            # if i>10: break
+            # if f.split("-")[0] == str(stage):
+            curArr = np.load(join(HAND_DATA_2D_PATH, f))
             arr = curArr if type(arr) == type(None) else np.vstack((arr, curArr))
-
-        self.trainX, self.train_y, self.devX, self.dev_y, self.testX, self.test_y = trainDevTestPrep(arr)
-
+        self.trainX, self.train_y, self.devX, self.dev_y, self.testX, self.test_y = trainDevTestPrep(arr, 2)
         # Cluster the labels
         _, y = divXy(arr, 2)
-        counts = defaultdict(lambda: 0)
-        for x in y:
-            counts[x] += 1
-        counts = list(counts.items())
-        kmeansModel = KMeans(n_clusters=N_HAND_CLASSES, random_state=70)
-        kmeansModel.fit([[x] for x in y])
+
+        self._nClasses = N_HAND_CLASSES + 1  # +1 for players who quit
+        toClasses = lambda ranks: to_categorical(
+            [rank > 0 for rank in ranks],
+            num_classes=self._nClasses
+        )
+        toClasses = lambda ranks: np.array([int(rank >= cutoff) if rank > 0 else N_HAND_CLASSES - rank for rank in ranks])
+
+        # counts = defaultdict(lambda: 0)
+        # for x in y:
+        #     counts[x] += 1
+        # counts = list(counts.items())
+        # kmeansModel = KMeans(n_clusters=N_HAND_CLASSES, random_state=70)
+        # kmeansModel.fit([[x] for x in y])
 
         # Create a function that maps ranks into their classes according to the clusters
         # It maps ranks that are 0 or less into unique classes, rather than their clusters
         # This is so because 0 and less corresponds to folding at different stages of the game
-        toClasses = lambda ranks: to_categorical(
-            [kmeansModel.predict([[rank]])[0] if rank > 0 else N_HAND_CLASSES - rank for rank in ranks])
+        # toClasses = lambda ranks: to_categorical(
+        #     [kmeansModel.predict([[rank]])[0] if rank > 0 else N_HAND_CLASSES - rank for rank in ranks])
 
         ## Show label distribution where the clusters are color coded
-        yPred = kmeansModel.predict([[x] for x in y])
-        colors = "bgrcmykw"
-        clusterToCounts = defaultdict(lambda: [])
-        for i in range(len(y)):
-            rank = y[i]
-            clusterToCounts[yPred[i]].append(rank)
-        for cluster, vals in clusterToCounts.items():
-            pyplot.scatter([x for x in vals], [random.choice(range(1000)) for _ in vals],
-                           color=colors[cluster % len(colors)])
-        pyplot.show()
+        # yPred = kmeansModel.predict([[x] for x in y])
+        #
+        # clusterToRanks=defaultdict(lambda: [])
+        # for i in range(len(y)):
+        #     rank,cluster = y[i], yPred[i]
+        #     clusterToRanks[cluster].append(rank)
+        #
+        # avgs = sorted([(int(sum(x)/len(x))) for x in list(clusterToRanks.values())])
+        # print(avgs)
+        # colors = "bgrcmykw"
+        # clusterToCounts = defaultdict(lambda: [])
+        # for i in range(len(y)):
+        #     rank = y[i]
+        #     clusterToCounts[yPred[i]].append(rank)
+        # for cluster, vals in clusterToCounts.items():
+        #     pyplot.scatter([x for x in vals], [random.choice(range(1000)) for _ in vals],
+        #                    color=colors[cluster % len(colors)])
+        # pyplot.show()
 
         # Divide labels into classes
         self.train_y = toClasses(self.train_y)
         self.dev_y = toClasses(self.dev_y)
         self.test_y = toClasses(self.test_y)
 
+        # Even out the classes
+        self.trainX, self.train_y = equate(self.trainX, self.train_y)
+        self.devX, self.dev_y = equate(self.devX, self.dev_y)
+        self.testX, self.test_y = equate(self.testX, self.test_y)
+
+        # Encode one hot
+        self.encodeOneHot()
+
+    def encodeOneHot(self):
+        self.train_y = to_categorical(self.train_y, num_classes=self._nClasses)
+        self.dev_y = to_categorical(self.dev_y, num_classes=self._nClasses)
+        self.test_y = to_categorical(self.test_y, num_classes=self._nClasses)
+
+
+    def nClasses(self):
+        return self._nClasses
+
+
+class IrcHandVecsDataLoader(DataLoader):
+    def __init__(self, cutoff=float('inf')):
+        arr = None
+        i = 1
+        for f in listdir(HAND_DATA_1D_PATH):
+            i += 1
+            # if i>10: break
+            curArr = np.load(join(HAND_DATA_1D_PATH, f))
+            arr = curArr if type(arr) == type(None) else np.vstack((arr, curArr))
+        self.trainX, self.train_y, self.devX, self.dev_y, self.testX, self.test_y = trainDevTestPrep(arr, 1)
+        # Cluster the labels
+        _, y = divXy(arr, 1)
+        self._nClasses = N_HAND_CLASSES + 1  # +1 for players who quit
+        toClasses = lambda ranks:  np.array([int(rank >= cutoff) if rank > 0 else N_HAND_CLASSES - rank for rank in ranks])
+
+        # Divide labels into classes
+        self.train_y = toClasses(self.train_y)
+        self.dev_y = toClasses(self.dev_y)
+        self.test_y = toClasses(self.test_y)
+
+        # Even out the classes
+        self.trainX, self.train_y = equate(self.trainX, self.train_y)
+        self.devX, self.dev_y = equate(self.devX, self.dev_y)
+        self.testX, self.test_y = equate(self.testX, self.test_y)
+
+    def nClasses(self):
+        return self._nClasses
+
 
 def buildIrcHandVectors(ircDataPath=IRC_DATA_PATH,
-                        handOutpath=HAND_DATA_PATH,
-                        winningHandOutpath=WINNING_HAND_DATA_PATH,
-                        bluffOutpath=BLUFF_DATA_PATH,
+                        matsOutpath=HAND_DATA_2D_PATH,
+                        vecsOutpath=HAND_DATA_1D_PATH,
                         debug=False,
-                        maxIterations=600):
+                        cap=200):
     """Iterate features of IRC games and save them as vectors."""
+
+    if not exists(matsOutpath):
+        os.mkdir(matsOutpath)
+    if not exists(vecsOutpath):
+        os.mkdir(vecsOutpath)
 
     parser = IrcHoldemDataParser(ircDataPath)
 
     fileCounter = 1
 
-    handPath = join(handOutpath, "%d.npy" % fileCounter)
-    wHandPath = join(winningHandOutpath, "%d.npy" % fileCounter)
-    bluffPath = join(bluffOutpath, "%d.npy" % fileCounter)
-
-    handMats = None
-    wHandMats = None
-    bluffMats = None
-
+    stageToMats = {}
+    allVecs = []
     i = 1
     for game in parser.iterGames():
-        print("=====================")
         if game.nPlayers > MAX_N_PLAYERS:
             continue
 
         i += 1
         # Stop here
-        if i > maxIterations:
+        if i > cap:
             break
 
         # Save data periodically
         if i % 200 == 0:
             print("Saving to file #" + str(fileCounter))
-            np.save(handPath, handMats)
-            np.save(wHandPath, wHandMats)
-            np.save(bluffPath, bluffMats)
 
-            fileCounter = 1
-            handPath = join(handOutpath, "%d.npy" % fileCounter)
-            wHandPath = join(winningHandOutpath, "%d.npy" % fileCounter)
-            bluffPath = join(bluffOutpath, "%d.npy" % fileCounter)
+            np.save(join(vecsOutpath,"%d.npy" % fileCounter), np.array(allVecs))
+            for stage, mats in stageToMats.items():
+                path = join(matsOutpath, "%d-%d.npy" % (stage, fileCounter))
+                np.save(path, mats)
 
-            handMats = None
-            wHandMats = None
-            bluffMats = None
+            fileCounter += 1
+            stageToMats = {}
+            allVecs = []
 
         playerToMat = {}
         prevVec = game.initGameState().asVector(playerFeatsBlackList=["equity", "pos"])
         for player, gameState in game.roundVectors(debug=debug):
-            print(player.pos, gameState.get("gameStage"), gameState.get("roundNumber"))
+            stage = gameState.get("gameStage")
             # Note: equity is modeled as plain rank for now. Rank is how strong
             # the hand is. The greater the number the higher the rank. I'm using
             # the eval7 package.
-            rankLabel = gameState.get("equity", player.pos)  # To predict rank
-            actionLabel = gameState.get("lastAction", player.pos)  # To predict action
+            rankLabel = len(player.cards) and gameState.get("equity", player.pos)  # To predict rank
+            action = gameState.get("lastAction", player.pos)  # To predict action
             vec = gameState.asVector(playerFeatsBlackList=["equity", "pos"])  # Get vector without equity
-            rlVec = np.append(prevVec,actionLabel)
             prevVec = vec.copy()
-            vec.append(rankLabel)
-
+            vec.append(rankLabel)  # Append golden label
+            allVecs.append(vec)
             # Build rounds matrix
             if player.pos in playerToMat:
                 mat = playerToMat[player.pos]
@@ -397,18 +456,12 @@ def buildIrcHandVectors(ircDataPath=IRC_DATA_PATH,
 
             else:
                 mat = np.expand_dims(vec, 0)
-
             playerToMat[player.pos] = mat
 
             newMat = np.expand_dims(padSequence(mat, MAX_N_ROUNDS), 0)
 
             # Append to all hands mat
-            handMats = newMat if (type(handMats) == type(None)) else np.vstack((handMats, newMat))
-
-            # Append to winning hand and bluff mats
-            if game.getWinner() == player:
-                if player.cards:
-                    wHandMats = newMat if (type(wHandMats) == type(None)) else np.vstack((wHandMats, newMat))
-
-                else:
-                    bluffMats = newMat if (type(bluffMats) == type(None)) else np.vstack((bluffMats, newMat))
+            if action not in (
+            FOLD, QUIT, KICKED):  # Ignore players who quit because that's part of what we're trying to predict
+                mats = newMat if (stage not in stageToMats.keys()) else np.vstack((stageToMats[stage], newMat))
+                stageToMats[stage] = mats

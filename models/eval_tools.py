@@ -106,13 +106,12 @@ def evaluateSKLearnModel(modelClass, configs, debug=False):
         data = config.data
 
         if debug:
-            printdb("Params:")
-            printdb(str(config))
+            printdb("Training with params:")
+            printdb([config])
         model = modelClass(config)
         model.train(data.trainX, data.train_y)
         devAcc = model.eval(data.devX, data.dev_y)
         testAcc = model.eval(data.testX, data.test_y)
-
         if debug:
             printdb("Dev loss: " + str(devAcc))
             printdb("Test loss: " + str(testAcc))
@@ -126,7 +125,7 @@ def evaluateTFModel(modelClass, configs, debug=False):
     results = {}
     for config in configs:
         if debug:
-            print("Training %s with parameters:\n %s" % (modelClass.__name__, str(config)))
+            print("Training %s with parameters:\n %s" % (modelClass.__name__, [config]))
 
         # Creating a copy of the data that is one hot encoded (if needed)
         thisData = deepcopy(config.data)

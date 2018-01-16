@@ -2,7 +2,8 @@
 
 DATA_DIR_PATH = "data"
 IRC_DATA_PATH = "../PBOLD3/data/irc-data"
-HAND_DATA_PATH = "data/hand-data"
+HAND_DATA_2D_PATH = "data/hand-data-2D"
+HAND_DATA_1D_PATH = "data/hand-data-1D"
 WINNING_HAND_DATA_PATH = "data/winning-hand-data"
 BLUFF_DATA_PATH = "data/bluff-data"
 POKER_BOT_DATA_PATH = "data/pb-data"
@@ -48,16 +49,20 @@ PreFlop, Flop, Turn, River, Showdown = GameStages
 # because they are supposed to be updated
 relEquityCache = {}
 globalEquityCache = {}
-
+# vary NAN_NUM
 NAN_NUM = 0  # This is a numerical representation of "nothing"
 
 # Features
 
 FEATURE_ACTIONS = ["Call", "Raise"]  # The actions that are considered for features
-
-MAX_N_ROUNDS = 11  # Maximal number of rounds per game
+# vary MAX_N_ROUNDS
+MAX_N_ROUNDS = 10  # Maximal number of rounds per game
 MAX_N_PLAYERS = 10  # Maximal number of players
-N_HAND_CLASSES = 3
+N_HAND_CLASSES = 1
+
+# The ranks that are used as cutoffs for training rank prediction models
+RANK_CUTOFFS = [715561, 17254319, 34156659, 50826759, 67690496, 84658214, 101166694, 117703884]
+RANK_CUTOFFS = [34156659]
 
 GLOBAL_FEATURES = [
 

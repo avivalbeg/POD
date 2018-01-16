@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 import sys
+import random
+
 import numpy as np
 from collections import defaultdict
 
@@ -239,6 +241,20 @@ def joinLists(lists):
 padSequence = lambda mat, n: np.pad(mat[-n:], ((0, max([0, n - len(mat)])), (0, 0)), 'constant')
 
 
+def equate(X, y):
+    """Given target X and labels y, select a sample of X and y such that
+    all classes are equally represented."""
+    least = min(list(getCounts(y).values())) # Least frequent class
+    classToInds = defaultdict(lambda: []) # Which indices have some class
+    for i, cls in enumerate(y):
+        classToInds[cls].append(i)
+    # Equate: choose samples of the indices of each class which are
+    # all of the same size:
+    allInds = []
+    for cls, inds in classToInds.items():
+        allInds.extend(random.sample(inds, least))
+    return np.take(X,allInds,axis=0),np.take(y,allInds,axis=0)
+
 def makeFile(path):
     open(path, "w").close()
     return open(path, "ab")
@@ -246,19 +262,27 @@ def makeFile(path):
 
 def divXy(Xy, axis):
     X, y = np.split(Xy, (-1,), axis)
-    y = np.max(np.squeeze(y, axis), axis - 1)
+    maxFunc = lambda vec: np.max(vec, axis-1) if axis>1 else vec
+    y = maxFunc(np.squeeze(y, axis))
     return X, y
 
 
-def trainDevTestPrep(array):
+def trainDevTestPrep(array, nAxes):
 
     # Split into train,dev,test
     train_dev, test = train_test_split(array)
     train, dev = train_test_split(train_dev)
-
     # Split to input and target
-    trainX, train_y = divXy(train, 2)
-    devX, dev_y = divXy(dev, 2)
-    testX, test_y = divXy(test, 2)
+    trainX, train_y = divXy(train, nAxes)
+    devX, dev_y = divXy(dev, nAxes)
+    testX, test_y = divXy(test, nAxes)
 
     return trainX,train_y,devX,dev_y,testX,test_y
+
+def getCounts(li):
+    counts = defaultdict(lambda : 0)
+    for x in li:
+        counts[x]+=1
+    return counts
+
+
